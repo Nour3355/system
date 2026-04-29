@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>براند - إدارة المنتجات</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1E293B",
+                        secondary: "#64748B",
+                        accent: "#EF4444",
+                        success: "#22C55E",
+                        warning: "#F59E0B",
+                        background: "#F8FAFC",
+                        surface: "#FFFFFF",
+                        "on-surface": "#0F172A",
+                        outline: "#CBD5E1",
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.75rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                    },
+                    fontFamily: {
+                        display: ["Cairo", "sans-serif"],
+                        body: ["Cairo", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 40px -10px rgba(0,0,0,0.05)',
+                        'premium-hover': '0 20px 50px -12px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        [x-cloak] { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        body { font-family: 'Cairo', sans-serif; background-color: #F8FAFC; }
+    </style>
+    <script src="router.js"></script>
+    <link href="responsive.css" rel="stylesheet">
+    <script src="auth.js"></script>
+</head>
+
+<body class="text-on-surface antialiased overflow-x-hidden" x-data="inventoryApp()" x-init="initData()">
+    
+    <div class="flex min-h-screen">
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="sidebar-backdrop" :class="mobileMenuOpen ? 'active' : ''" @click="mobileMenuOpen = false"></div>
+
+        <!-- القائمة الجانبية (Sidebar) -->
+        <aside 
+            @mouseenter="sidebarExpanded = true" 
+            @mouseleave="sidebarExpanded = false"
+            class="sidebar-main sticky top-0 h-screen bg-primary text-white z-[70] transition-all duration-300 overflow-hidden group shrink-0 shadow-2xl flex flex-col"
+            :class="[(sidebarExpanded || sidebarLocked) ? 'w-72' : 'w-20', mobileMenuOpen ? 'mobile-open' : '']">
+            <div class="py-6 px-5 flex items-center justify-between overflow-hidden">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 shrink-0 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+                        <span class="material-symbols-outlined text-white font-bold text-lg">shopping_bag</span>
+                    </div>
+                    <h1 class="text-xl font-extrabold tracking-tight transition-opacity duration-300 whitespace-nowrap" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">براند</h1>
+                </div>
+                <button @click="sidebarLocked = !sidebarLocked; localStorage.setItem('sidebarLocked', sidebarLocked)" 
+                        class="transition-all duration-300 hover:bg-white/10 p-2 rounded-lg"
+                        :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                    <span class="material-symbols-outlined text-sm" :style="sidebarLocked ? 'font-variation-settings: \'FILL\' 1' : ''">push_pin</span>
+                </button>
+            </div>
+
+            <nav class="mt-4 px-3 flex flex-col gap-2 flex-1 overflow-y-auto no-scrollbar">
+                <a href="Dashboard.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">dashboard</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">لوحة التحكم</span>
+                </a>
+                <a href="index.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">point_of_sale</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الكاشير</span>
+                </a>
+                <a href="Rentals.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">styler</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التأجير</span>
+                </a>
+                                <a href="Alterations.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">content_cut</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التعديلات</span>
+                </a>
+                <a href="Customers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">group</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">العملاء</span>
+                </a>
+                <a href="Inventory.html" class="nav-link flex items-center rounded-xl bg-white/10 text-white font-medium transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المخزون</span>
+                </a>
+                <a href="Suppliers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموردين</span>
+                </a>
+                <a href="Employees.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">badge</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموظفين</span>
+                </a>
+                <a href="Expenses.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المصاريف</span>
+                </a>
+                <a href="Reports.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التقارير</span>
+                </a>
+                <a href="Settings.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">settings</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الإعدادات</span>
+                </a>
+            </nav>
+
+            <div class="p-3 mt-auto border-t border-white/10">
+                <button onclick="logout()" class="w-full flex items-center rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">logout</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">تسجيل الخروج</span>
+                </button>
+            </div>
+</aside>
+
+        <!-- منطقة المحتوى الرئيسية -->
+        <div class="flex-1 flex flex-col min-w-0" x-data="inventoryApp()" x-init="initData()">
+            <!-- الهيدر (Header) -->
+            <header class="h-20 bg-white/70 backdrop-blur-xl border-b border-outline sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
+                <div class="flex items-center gap-3 flex-1">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-btn w-10 h-10 items-center justify-center rounded-xl bg-primary text-white">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <div class="relative flex-1 max-w-md hidden sm:block">
+                        <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+                        <input x-model="searchQuery" type="text" placeholder="بحث عن منتج..." class="w-full bg-slate-100/50 border-none rounded-xl py-2.5 pr-12 pl-4 text-sm focus:ring-2 focus:ring-primary/10 transition-all">
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button @click="openSupplyModal()" class="px-3 md:px-5 py-2.5 rounded-xl bg-success text-white text-sm font-bold hover:bg-green-600 transition-all shadow-lg shadow-success/20 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">local_shipping</span> <span class="hidden md:inline">تسجيل مشتريات</span>
+                    </button>
+                    <button @click="isEditing = false; resetForm(); showAddModal = true" class="px-3 md:px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-slate-800 transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">add_circle</span> <span class="hidden md:inline">إضافة منتج</span>
+                    </button>
+                    <div id="user-info-display" class="flex items-center gap-3 pr-4 md:border-r border-outline hidden md:flex"></div>
+                </div>
+            </header>
+
+            <!-- المحتوى الرئيسي -->
+            <main class="p-8 min-h-screen">
+                <div class="max-w-7xl mx-auto">
+                    <!-- عنوان الصفحة والفلاتر -->
+                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                        <div>
+                            <h1 class="text-4xl font-extrabold text-primary mb-2">مكتبة المنتجات</h1>
+                            <p class="text-slate-500 font-medium">إدارة المخزون والتفاصيل والأسعار في مكان واحد.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-primary text-white' : 'bg-white text-slate-400 hover:bg-slate-50'" class="w-12 h-12 flex items-center justify-center rounded-xl border-2 border-slate-300 transition-all shadow-sm">
+                                <span class="material-symbols-outlined">grid_view</span>
+                            </button>
+                            <button @click="viewMode = 'table'" :class="viewMode === 'table' ? 'bg-primary text-white' : 'bg-white text-slate-400 hover:bg-slate-50'" class="w-12 h-12 flex items-center justify-center rounded-xl border-2 border-slate-300 transition-all shadow-sm">
+                                <span class="material-symbols-outlined">list</span>
+                            </button>
+                            <div class="h-10 w-[1px] bg-outline mx-2"></div>
+                            <button class="px-5 py-2.5 bg-white border-2 border-slate-300 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm">
+                                <span class="material-symbols-outlined text-lg">filter_alt</span> تصفية
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- عرض الشبكة (Grid View) -->
+                    <div x-show="viewMode === 'grid'" x-transition class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
+                        <template x-if="filteredInventory.length === 0">
+                            <div class="col-span-full py-20 bg-white rounded-[3rem] border-2 border-slate-300 shadow-premium flex flex-col items-center justify-center text-slate-400">
+                                <span class="material-symbols-outlined text-6xl mb-4">inventory_2</span>
+                                <h3 class="text-xl font-extrabold text-primary mb-1">لا توجد منتجات</h3>
+                                <p class="text-sm font-medium">ابدأ بإضافة منتجاتك الأولى إلى المخزن.</p>
+                            </div>
+                        </template>
+                        <template x-for="(item, index) in filteredInventory" :key="item.id">
+                            <div class="bg-white rounded-[2.5rem] border-2 border-slate-300 shadow-premium hover:shadow-premium-hover hover:-translate-y-1 transition-all overflow-hidden group">
+                                <div @click="previewImageIndex = index" class="aspect-[4/5] bg-slate-100 relative overflow-hidden cursor-pointer">
+                                    <img :src="item.image_url" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                    <div class="absolute top-4 left-4 flex gap-2">
+                                        <button @click.stop="editProduct(item)" class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur-sm text-primary hover:bg-white transition-all shadow-sm flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-sm">edit</span>
+                                        </button>
+                                        <button @click.stop="deleteProduct(item.id)" class="w-8 h-8 rounded-lg bg-white/90 backdrop-blur-sm text-accent hover:bg-white transition-all shadow-sm flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-sm">delete</span>
+                                        </button>
+                                    </div>
+                                    <div class="absolute top-4 right-4">
+                                         <!-- Category moved to title -->
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-sm font-extrabold text-primary mb-2 line-clamp-1" x-text="item.name + ' (' + item.category + ')'"></h3>
+                                    
+                                    <!-- تفاصيل إضافية -->
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        <span class="text-[9px] px-2 py-1 bg-slate-100 text-slate-500 rounded-lg font-bold" x-text="'SKU: ' + (item.code || '-')"></span>
+                                        <span class="text-[9px] px-2 py-1 bg-slate-100 text-slate-500 rounded-lg font-bold" x-text="'باركود: ' + (item.barcode || '-')"></span>
+                                        <template x-if="item.color">
+                                            <span class="text-[9px] px-2 py-1 bg-slate-100 text-slate-500 rounded-lg font-bold" x-text="'لون: ' + item.color"></span>
+                                        </template>
+                                        <template x-if="item.size_cut">
+                                            <span class="text-[9px] px-2 py-1 bg-slate-100 text-slate-500 rounded-lg font-bold" x-text="'مقاس: ' + item.size_cut"></span>
+                                        </template>
+                                    </div>
+
+                                    <div class="flex justify-between items-end pt-2 border-t border-slate-100">
+                                        <div>
+                                            <p class="text-[9px] text-slate-400 font-bold uppercase mb-1">السعر</p>
+                                            <p class="text-lg font-extrabold text-primary" x-text="item.price + ' ج.م'"></p>
+                                        </div>
+                                        <div class="text-left">
+                                            <p class="text-[9px] text-slate-400 font-bold uppercase mb-1">المخزون</p>
+                                            <span :class="item.stock_level < 10 ? 'text-accent' : 'text-success'" class="text-sm font-extrabold" x-text="item.stock_level"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- عرض الجدول (Table View) -->
+                    <div x-show="viewMode === 'table'" x-transition class="bg-white rounded-[2rem] border border-slate-200 shadow-premium overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right border-collapse">
+                                <thead class="sticky top-0 z-10 shadow-sm">
+                                    <tr class="bg-slate-900 border-b border-slate-800">
+                                        <th class="px-6 py-4 text-[11px] font-black text-slate-200 uppercase tracking-[0.2em]">المنتج</th>
+                                        <th class="px-6 py-4 text-[11px] font-black text-slate-200 uppercase tracking-[0.2em]">SKU</th>
+                                        <th class="px-6 py-4 text-[11px] font-black text-slate-200 uppercase tracking-[0.2em]">الباركود</th>
+                                        <th class="px-6 py-4 text-[11px] font-black text-slate-200 uppercase tracking-[0.2em]">التصنيف</th>
+                                        <th class="px-6 py-4 text-[11px] font-black text-slate-200 uppercase tracking-[0.2em] text-center">المخزون</th>
+                                        <th class="px-6 py-4 text-[11px] font-black text-slate-200 uppercase tracking-[0.2em]">السعر</th>
+                                        <th class="px-6 py-4 text-[11px] font-black text-slate-200 uppercase tracking-[0.2em] text-center">التحكم</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    <template x-if="filteredInventory.length === 0">
+                                        <tr>
+                                            <td colspan="7" class="px-6 py-32 text-center">
+                                                <div class="flex flex-col items-center gap-3">
+                                                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
+                                                        <span class="material-symbols-outlined text-4xl">inventory_2</span>
+                                                    </div>
+                                                    <p class="text-sm font-bold text-slate-400">لا توجد منتجات مطابقة للبحث</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-for="(item, index) in filteredInventory" :key="item.id">
+                                        <tr class="group hover:bg-slate-50/50 transition-all duration-300">
+                                            <td class="px-6 py-5">
+                                                <div class="flex items-center gap-4">
+                                                    <div @click="previewImageIndex = index" class="relative w-14 h-14 rounded-2xl bg-slate-100 overflow-hidden shrink-0 cursor-pointer border-2 border-white shadow-sm hover:shadow-md transition-all group-hover:scale-105">
+                                                        <img :src="item.image_url" class="w-full h-full object-cover">
+                                                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-all"></div>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-sm font-black text-primary group-hover:text-accent transition-colors" x-text="item.name"></p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <span class="font-en text-xs font-black px-2 py-1 bg-slate-100 text-slate-600 rounded-md border border-slate-200" x-text="item.code"></span>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <span class="font-en text-xs font-bold text-slate-500" x-text="item.barcode || '-'"></span>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <span class="text-xs font-extrabold text-slate-500 flex items-center gap-1">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                                                    <span x-text="item.category"></span>
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-5 text-center">
+                                                <div class="flex flex-col items-center gap-2">
+                                                    <!-- Branch User View -->
+                                                    <template x-if="window.currentUser && window.currentUser.role === 'branch_user'">
+                                                        <template x-for="bs in item.branch_stocks" :key="bs.branch_id">
+                                                            <template x-if="bs.branch_id === window.currentUser.branch_id">
+                                                                <div class="flex items-center gap-2">
+                                                                    <div :class="bs.stock_level <= item.min_stock_level ? 'bg-accent' : 'bg-success'" class="w-2 h-2 rounded-full animate-pulse"></div>
+                                                                    <span class="text-xs font-black" :class="bs.stock_level <= item.min_stock_level ? 'text-accent' : 'text-success'" x-text="bs.stock_level + ' قطعة متوفرة'"></span>
+                                                                </div>
+                                                            </template>
+                                                        </template>
+                                                    </template>
+
+                                                    <!-- Admin View -->
+                                                    <template x-if="!window.currentUser || window.currentUser.role === 'admin'">
+                                                        <div class="flex flex-col items-center gap-2">
+                                                            <div class="mb-1">
+                                                                <span class="px-3 py-1 rounded-lg text-sm font-black uppercase tracking-tight shadow-sm" :class="item.stock_level <= 5 ? 'bg-accent text-white' : 'bg-primary text-white'" x-text="'إجمالي: ' + item.stock_level"></span>
+                                                            </div>
+                                                            <div class="flex flex-wrap justify-center gap-1.5">
+                                                                <template x-for="bs in item.branch_stocks" :key="bs.branch_id">
+                                                                    <div class="px-2 py-1 bg-slate-50 border border-slate-200 rounded text-[11px] font-bold">
+                                                                        <span class="text-slate-500" x-text="getBranchName(bs.branch_id) + ':'"></span>
+                                                                        <span class="text-primary font-black" x-text="bs.stock_level"></span>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <div class="text-sm font-black text-primary tabular-nums">
+                                                    <span x-text="item.price"></span>
+                                                    <span class="text-[10px] text-slate-400 mr-1">ج.م</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-5">
+                                                <div class="flex items-center justify-center gap-1">
+                                                    <button @click="openTransferModal(item)" title="تحويل مخزني" class="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-xl transition-all">
+                                                        <span class="material-symbols-outlined text-lg">move_item</span>
+                                                    </button>
+                                                    <button @click="editProduct(item)" title="تعديل" class="p-2 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-xl transition-all">
+                                                        <span class="material-symbols-outlined text-lg">edit</span>
+                                                    </button>
+                                                    <button @click="deleteProduct(item.id)" title="حذف" class="p-2 text-slate-400 hover:text-accent hover:bg-red-50 rounded-xl transition-all">
+                                                        <span class="material-symbols-outlined text-lg">delete</span>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Modal لإضافة منتج -->
+            <div x-show="showAddModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div x-show="showAddModal" @click="showAddModal = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div x-show="showAddModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-[2.5rem] text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full p-10">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-extrabold text-primary" id="modal-title" x-text="isEditing ? 'تعديل المنتج' : 'إضافة منتج جديد'"></h3>
+                            <p class="text-sm text-slate-400 font-medium mt-2">أدخل تفاصيل المنتج ليتم حفظه في المخزن.</p>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">اسم المنتج</label>
+                                    <input x-model="newProduct.name" type="text" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">SKU</label>
+                                        <input x-model="newProduct.code" type="text" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">الباركود</label>
+                                        <input x-model="newProduct.barcode" type="text" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">التصنيف</label>
+                                        <select x-model="newProduct.category" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                            <option>تيشيرت</option>
+                                            <option>قمصان</option>
+                                            <option>جينز</option>
+                                            <option>بدل</option>
+                                            <option>صديري</option>
+                                            <option>إكسسوارات</option>
+                                            <option>أحذية</option>
+                                            <option>ملابس ثقيلة</option>
+                                        </select>
+                                    </div>
+                                    <div x-show="!isEditing">
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">مكان التخزين الأولي</label>
+                                        <select x-model="newProduct.branch_id" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                            <template x-for="b in branches" :key="b.id">
+                                                <option :value="b.id" x-text="b.name"></option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">اللون</label>
+                                        <input x-model="newProduct.color" type="text" placeholder="مثلاً: أسود" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">المقاس</label>
+                                        <input x-model="newProduct.size_cut" type="text" placeholder="مثلاً: XL أو 52" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">سعر البيع (ج.م)</label>
+                                        <input x-model="newProduct.price" type="number" step="0.01" placeholder="0.00" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">سعر التكلفة (ج.م)</label>
+                                        <input x-model="newProduct.cost_price" type="number" step="0.01" placeholder="0.00" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div x-show="!isEditing">
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">المخزون الأولي</label>
+                                        <input x-model="newProduct.stock_level" type="number" placeholder="0" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">حد أدنى تنبيه</label>
+                                        <input x-model="newProduct.min_stock_level" type="number" placeholder="5" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-center">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">صورة المنتج</label>
+                                    <div class="flex flex-col gap-4">
+                                        <div class="w-full aspect-square rounded-3xl bg-slate-50 border border-dashed border-outline shrink-0 overflow-hidden flex items-center justify-center">
+                                            <template x-if="newProduct.image_url">
+                                                <img :src="newProduct.image_url" class="w-full h-full object-cover">
+                                            </template>
+                                            <template x-if="!newProduct.image_url">
+                                                <div class="text-center text-slate-400">
+                                                    <span class="material-symbols-outlined text-5xl mb-2">image</span>
+                                                    <p class="text-xs font-bold">لا توجد صورة</p>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <input x-model="newProduct.image_url" type="text" placeholder="أو أدخل رابط الصورة (URL)" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                            <div class="flex items-center gap-2">
+                                                <button @click="$refs.fileInput.click()" type="button" class="w-full py-3 bg-slate-100 text-slate-600 rounded-xl text-sm font-bold hover:bg-slate-200 transition-all flex justify-center items-center gap-2">
+                                                    <span class="material-symbols-outlined text-sm">upload</span> تحميل من الجهاز
+                                                </button>
+                                                <input type="file" x-ref="fileInput" class="hidden" @change="handleFileUpload($event)" accept="image/*">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-10 flex gap-3">
+                            <button @click="addProduct()" class="flex-1 py-4 bg-primary text-white rounded-2xl text-sm font-extrabold hover:bg-slate-800 transition-all shadow-xl shadow-primary/20">حفظ المنتج</button>
+                            <button @click="showAddModal = false" class="px-8 py-4 bg-slate-100 text-slate-400 rounded-2xl text-sm font-extrabold hover:bg-slate-200 transition-all">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal تحويل مخزني -->
+            <div x-show="showTransferModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div x-show="showTransferModal" @click="showTransferModal = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div x-show="showTransferModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" class="inline-block align-bottom bg-white rounded-[2.5rem] text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full p-10">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-extrabold text-primary">تحويل مخزني بين الفروع</h3>
+                            <p class="text-sm text-slate-400 font-medium mt-2">نقل المخزون للصنف: <span class="font-bold text-primary" x-text="transferData.productName"></span></p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">من فرع</label>
+                                <select x-model="transferData.from_branch" :disabled="window.currentUser && window.currentUser.role === 'branch_user'" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all disabled:opacity-50 disabled:bg-slate-200">
+                                    <option value="">اختر الفرع...</option>
+                                    <template x-for="b in branches" :key="b.id">
+                                        <option :value="b.id" x-text="b.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">إلى فرع</label>
+                                <select x-model="transferData.to_branch" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                                    <option value="">اختر الفرع...</option>
+                                    <template x-for="b in branches" :key="b.id">
+                                        <option :value="b.id" x-text="b.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">الكمية المحولة</label>
+                                <input x-model="transferData.quantity" type="number" min="1" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                            </div>
+                        </div>
+                        <div class="mt-10 flex gap-3">
+                            <button @click="submitTransfer()" class="flex-1 py-4 bg-primary text-white rounded-2xl text-sm font-extrabold hover:bg-slate-800 transition-all shadow-xl shadow-primary/20">تنفيذ التحويل</button>
+                            <button @click="showTransferModal = false" class="px-8 py-4 bg-slate-100 text-slate-400 rounded-2xl text-sm font-extrabold hover:bg-slate-200 transition-all">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal تسجيل مشتريات -->
+            <div x-show="showSupplyModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div x-show="showSupplyModal" @click="showSupplyModal = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div x-show="showSupplyModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" class="inline-block align-bottom bg-white rounded-[2.5rem] text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full p-10">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-extrabold text-success">تسجيل مشتريات جديدة</h3>
+                            <p class="text-sm text-slate-400 font-medium mt-2">إضافة بضاعة للمخزن وإنشاء مديونية للمورد.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 pr-2">المنتج</label>
+                                    <select x-model="supplyData.inventory_id" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-success/20">
+                                        <option value="">اختر المنتج...</option>
+                                        <template x-for="item in inventory" :key="item.id">
+                                            <option :value="item.id" x-text="item.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 pr-2">المورد</label>
+                                    <select x-model="supplyData.supplier_id" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-success/20">
+                                        <option value="">اختر المورد...</option>
+                                        <template x-for="s in suppliers" :key="s.id">
+                                            <option :value="s.id" x-text="s.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 pr-2">الفرع / المخزن المستلم</label>
+                                    <select x-model="supplyData.branch_id" :disabled="window.currentUser && window.currentUser.role === 'branch_user'" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-success/20 disabled:opacity-50 disabled:bg-slate-200">
+                                        <template x-for="b in branches" :key="b.id">
+                                            <option :value="b.id" x-text="b.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 pr-2">الكمية</label>
+                                        <input x-model="supplyData.quantity" type="number" min="1" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm text-center focus:ring-2 focus:ring-success/20">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 pr-2">سعر الشراء (للوحدة)</label>
+                                        <input x-model="supplyData.cost_price" type="number" step="0.01" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm text-center focus:ring-2 focus:ring-success/20">
+                                    </div>
+                                </div>
+                                <div class="pt-2">
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-1 pr-2">إجمالي الفاتورة</label>
+                                    <div class="w-full bg-success/10 border border-success/20 rounded-xl py-4 px-4 text-xl font-black text-success text-center" x-text="(supplyData.quantity * supplyData.cost_price || 0).toFixed(2) + ' ج.م'"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-8 flex gap-3">
+                            <button @click="submitSupply()" class="flex-1 py-4 bg-success text-white rounded-2xl text-sm font-extrabold hover:bg-green-600 transition-all shadow-xl shadow-success/20">تسجيل الفاتورة وإضافة المخزون</button>
+                            <button @click="showSupplyModal = false" class="px-8 py-4 bg-slate-100 text-slate-400 rounded-2xl text-sm font-extrabold hover:bg-slate-200 transition-all">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal عرض الصورة بحجم كبير -->
+            <div x-show="previewImageIndex !== null" x-cloak class="fixed inset-0 z-[120] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true" @keydown.window.escape="previewImageIndex = null" @keydown.window.right="if(previewImageIndex !== null) previewImageIndex = (previewImageIndex + 1) % filteredInventory.length" @keydown.window.left="if(previewImageIndex !== null) previewImageIndex = (previewImageIndex - 1 + filteredInventory.length) % filteredInventory.length">
+                <div class="flex items-center justify-center min-h-screen p-4 text-center sm:p-0">
+                    <div x-show="previewImageIndex !== null" @click="previewImageIndex = null" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md transition-opacity" aria-hidden="true"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div x-show="previewImageIndex !== null" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-middle bg-transparent rounded-3xl overflow-hidden shadow-2xl transform transition-all max-w-3xl w-full">
+                        <div class="relative group">
+                            <!-- إغلاق -->
+                            <button @click="previewImageIndex = null" class="absolute top-4 right-4 w-10 h-10 bg-black/50 text-white rounded-full flex items-center justify-center hover:bg-black/70 transition-all backdrop-blur-sm z-10">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+
+                            <!-- السابق -->
+                            <button @click.stop="previewImageIndex = (previewImageIndex - 1 + filteredInventory.length) % filteredInventory.length" class="absolute top-1/2 right-4 -translate-y-1/2 w-12 h-12 bg-black/30 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md z-10 opacity-0 group-hover:opacity-100">
+                                <span class="material-symbols-outlined">chevron_right</span>
+                            </button>
+
+                            <!-- التالي -->
+                            <button @click.stop="previewImageIndex = (previewImageIndex + 1) % filteredInventory.length" class="absolute top-1/2 left-4 -translate-y-1/2 w-12 h-12 bg-black/30 hover:bg-black/60 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-md z-10 opacity-0 group-hover:opacity-100">
+                                <span class="material-symbols-outlined">chevron_left</span>
+                            </button>
+
+                            <img :src="filteredInventory[previewImageIndex]?.image_url" class="w-full h-auto max-h-[85vh] object-contain rounded-3xl bg-white/5 backdrop-blur-xl">
+                            
+                            <!-- عداد الصور -->
+                            <div class="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-black/50 backdrop-blur-md rounded-full text-white text-xs font-bold font-en tracking-widest z-10">
+                                <span x-text="(previewImageIndex + 1) + ' / ' + filteredInventory.length"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('inventoryApp', () => ({
+                sidebarExpanded: false,
+                mobileMenuOpen: false,
+                sidebarLocked: localStorage.getItem('sidebarLocked') === 'true',
+                viewMode: localStorage.getItem('inventoryViewMode') || 'grid',
+                searchQuery: '',
+                previewImageIndex: null,
+                showAddModal: false,
+                showTransferModal: false,
+                showSupplyModal: false,
+                isEditing: false,
+                inventory: [],
+                branches: [],
+                suppliers: [],
+                transferData: {
+                    inventory_id: null,
+                    productName: '',
+                    from_branch: '',
+                    to_branch: '',
+                    quantity: ''
+                },
+                supplyData: {
+                    inventory_id: '',
+                    supplier_id: '',
+                    branch_id: 1,
+                    quantity: '',
+                    cost_price: ''
+                },
+                newProduct: {
+                    id: null,
+                    name: '',
+                    code: '',
+                    barcode: '',
+                    category: 'قمصان',
+                    color: '',
+                    size_cut: '',
+                    price: '',
+                    stock_level: '',
+                    min_stock_level: 5,
+                    preferred_supplier_id: '',
+                    image_url: ''
+                },
+
+                init() {
+                    this.$watch('viewMode', value => localStorage.setItem('inventoryViewMode', value));
+                    this.initData();
+                },
+
+                async initData() {
+                    try {
+                        const [invRes, branchRes, supRes] = await Promise.all([
+                            fetch('/api/inventory'),
+                            fetch('/api/branches'),
+                            fetch('/api/suppliers')
+                        ]);
+                        this.inventory = await invRes.json();
+                        this.branches = await branchRes.json();
+                        this.suppliers = await supRes.json();
+                        if (window.currentUser && window.currentUser.role === 'branch_user') {
+                            this.supplyData.branch_id = window.currentUser.branch_id;
+                        }
+                    } catch (err) {
+                        console.error('Error fetching data:', err);
+                    }
+                },
+                getBranchName(id) {
+                    const b = this.branches.find(x => x.id === id);
+                    return b ? b.name : 'مجهول';
+                },
+                async addProduct() {
+                    try {
+                        const url = this.isEditing ? `/api/inventory/${this.newProduct.id}` : '/api/inventory';
+                        const method = this.isEditing ? 'PUT' : 'POST';
+                        
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.newProduct)
+                        });
+                        if (response.ok) {
+                            await this.initData();
+                            this.showAddModal = false;
+                            this.resetForm();
+                        }
+                    } catch (err) {
+                        console.error('Error saving product:', err);
+                    }
+                },
+                editProduct(product) {
+                    this.isEditing = true;
+                    this.newProduct = { ...product };
+                    this.showAddModal = true;
+                },
+                async deleteProduct(id) {
+                    if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+                    try {
+                        const response = await fetch(`/api/inventory/${id}`, { method: 'DELETE' });
+                        if (response.ok) await this.initData();
+                    } catch (err) {
+                        console.error('Error deleting product:', err);
+                    }
+                },
+                resetForm() {
+                    this.isEditing = false;
+                    this.newProduct = { 
+                        id: null, 
+                        name: '', 
+                        code: '', 
+                        barcode: '', 
+                        category: 'بدل', 
+                        color: '', 
+                        size_cut: '', 
+                        price: '', 
+                        cost_price: '', 
+                        stock_level: '', 
+                        min_stock_level: 5, 
+                        branch_id: 1,
+                        image_url: '' 
+                    };
+                },
+                handleFileUpload(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.newProduct.image_url = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                },
+                openTransferModal(product) {
+                    const currentUserId = window.currentUser ? window.currentUser.branch_id : '';
+                    const isBranchUser = window.currentUser && window.currentUser.role === 'branch_user';
+
+                    this.transferData = {
+                        inventory_id: product.id,
+                        productName: product.name,
+                        from_branch: isBranchUser ? currentUserId : '',
+                        to_branch: '',
+                        quantity: ''
+                    };
+                    this.showTransferModal = true;
+                },
+                async submitTransfer() {
+                    if (!this.transferData.from_branch || !this.transferData.to_branch || !this.transferData.quantity) {
+                        alert('برجاء إكمال جميع البيانات');
+                        return;
+                    }
+                    try {
+                        const res = await fetch('/api/inventory/transfer', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.transferData)
+                        });
+                        if (res.ok) {
+                            await this.initData();
+                            this.showTransferModal = false;
+                        } else {
+                            const err = await res.json();
+                            alert('خطأ: ' + err.error);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+                openSupplyModal() {
+                    this.supplyData = { inventory_id: '', supplier_id: '', branch_id: 1, quantity: '', cost_price: '' };
+                    this.showSupplyModal = true;
+                },
+                async submitSupply() {
+                    if (!this.supplyData.inventory_id || !this.supplyData.supplier_id || !this.supplyData.quantity) {
+                        alert('برجاء إكمال البيانات الأساسية');
+                        return;
+                    }
+                    try {
+                        const res = await fetch('/api/supply-records', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.supplyData)
+                        });
+                        if (res.ok) {
+                            await this.initData();
+                            this.showSupplyModal = false;
+                            alert('تم تسجيل المشتريات وإضافة المخزون بنجاح');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+                get filteredInventory() {
+                    return this.inventory.filter(item => 
+                        item.name.toLowerCase().includes(this.searchQuery.toLowerCase()) || 
+                        item.code.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                        item.category.toLowerCase().includes(this.searchQuery.toLowerCase())
+                    );
+                }
+            }));
+        });
+    </script>
+
+</body>
+</html>
+

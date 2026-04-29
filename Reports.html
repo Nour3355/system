@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>براند - التقارير والأرباح</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1E293B",
+                        secondary: "#64748B",
+                        accent: "#EF4444",
+                        success: "#22C55E",
+                        warning: "#F59E0B",
+                        background: "#F8FAFC",
+                        surface: "#FFFFFF",
+                        "on-surface": "#0F172A",
+                        outline: "#CBD5E1",
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.75rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                    },
+                    fontFamily: {
+                        display: ["Cairo", "sans-serif"],
+                        body: ["Cairo", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 40px -10px rgba(0,0,0,0.05)',
+                        'premium-hover': '0 20px 50px -12px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        [x-cloak] { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        body { font-family: 'Cairo', sans-serif; background-color: #F8FAFC; }
+    </style>
+    <script src="router.js"></script>
+    <link href="responsive.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="auth.js"></script>
+</head>
+
+<body class="text-on-surface antialiased overflow-x-hidden" x-data="reportsData()" x-init="initData()">
+    
+    <div class="flex min-h-screen">
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="sidebar-backdrop" :class="mobileMenuOpen ? 'active' : ''" @click="mobileMenuOpen = false"></div>
+
+        <!-- القائمة الجانبية (Sidebar) -->
+        <aside 
+            @mouseenter="sidebarExpanded = true" 
+            @mouseleave="sidebarExpanded = false"
+            class="sidebar-main sticky top-0 h-screen bg-primary text-white z-[70] transition-all duration-300 overflow-hidden group shrink-0 shadow-2xl flex flex-col"
+            :class="[(sidebarExpanded || sidebarLocked) ? 'w-72' : 'w-20', mobileMenuOpen ? 'mobile-open' : '']">
+            <div class="py-6 px-5 flex items-center justify-between overflow-hidden">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 shrink-0 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+                        <span class="material-symbols-outlined text-white font-bold text-lg">shopping_bag</span>
+                    </div>
+                    <h1 class="text-xl font-extrabold tracking-tight transition-opacity duration-300 whitespace-nowrap" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">براند</h1>
+                </div>
+                <button @click="sidebarLocked = !sidebarLocked; localStorage.setItem('sidebarLocked', sidebarLocked)" 
+                        class="transition-all duration-300 hover:bg-white/10 p-2 rounded-lg"
+                        :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                    <span class="material-symbols-outlined text-sm" :style="sidebarLocked ? 'font-variation-settings: \'FILL\' 1' : ''">push_pin</span>
+                </button>
+            </div>
+
+            <nav class="mt-4 px-3 flex flex-col gap-2 flex-1 overflow-y-auto no-scrollbar">
+                <a href="Dashboard.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">dashboard</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">لوحة التحكم</span>
+                </a>
+                <a href="index.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">point_of_sale</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الكاشير</span>
+                </a>
+                <a href="Rentals.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">styler</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التأجير</span>
+                </a>
+                                <a href="Alterations.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">content_cut</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التعديلات</span>
+                </a>
+                <a href="Customers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">group</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">العملاء</span>
+                </a>
+                <a href="Inventory.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المخزون</span>
+                </a>
+                <a href="Suppliers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموردين</span>
+                </a>
+                <a href="Employees.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">badge</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموظفين</span>
+                </a>
+                <a href="Expenses.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المصاريف</span>
+                </a>
+                <a href="Reports.html" class="nav-link flex items-center rounded-xl bg-white/10 text-white font-medium transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التقارير</span>
+                </a>
+                <a href="Settings.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">settings</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الإعدادات</span>
+                </a>
+            </nav>
+
+            <div class="p-3 mt-auto border-t border-white/10">
+                <button onclick="logout()" class="w-full flex items-center rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">logout</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">تسجيل الخروج</span>
+                </button>
+            </div>
+</aside>
+
+        <!-- منطقة المحتوى الرئيسية -->
+        <div class="flex-1 flex flex-col min-w-0">
+            <!-- الهيدر (Header) -->
+            <header class="h-20 bg-white/70 backdrop-blur-xl border-b border-outline sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
+                <div class="flex items-center gap-3 flex-1">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-btn w-10 h-10 items-center justify-center rounded-xl bg-primary text-white">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <h2 class="text-lg md:text-xl font-extrabold text-primary">تقارير الأرباح والمصاريف</h2>
+                </div>
+                
+                <div class="flex items-center gap-2 md:gap-4">
+                    <input type="month" x-model="selectedMonth" @change="initData()" class="bg-white border-2 border-slate-300 rounded-xl py-2 px-4 text-sm font-extrabold text-slate-600 focus:ring-2 focus:ring-primary/20">
+                    <button @click="window.print()" class="hidden md:flex px-5 py-2.5 bg-primary text-white rounded-xl text-xs font-extrabold hover:bg-slate-800 transition-all shadow-lg shadow-primary/20 items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">print</span> طباعة التقرير
+                    </button>
+                    <div id="user-info-display" class="flex items-center gap-3 pr-4 md:border-r border-outline hidden md:flex"></div>
+                </div>
+            </header>
+
+            <!-- المحتوى الرئيسي -->
+            <main class="p-8">
+                <div class="max-w-7xl mx-auto">
+                    <!-- إحصائيات الأداء الكلية (Summary) -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mb-12">
+                        <div class="bg-white p-6 md:p-8 rounded-[2.5rem] border-2 border-slate-300 shadow-premium">
+                            <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mb-2">إجمالي الإيرادات (المبيعات)</p>
+                            <h4 class="text-xl md:text-2xl font-extrabold text-primary" x-text="(summary.total_sales || 0) + ' ج.م'"></h4>
+                        </div>
+                        <div class="bg-white p-6 md:p-8 rounded-[2.5rem] border-2 border-slate-300 shadow-premium">
+                            <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mb-2">تكلفة البضاعة المباعة</p>
+                            <h4 class="text-xl md:text-2xl font-extrabold text-accent" x-text="(summary.cogs || 0) + ' ج.م'"></h4>
+                        </div>
+                        <div class="bg-white p-6 md:p-8 rounded-[2.5rem] border-2 border-slate-300 shadow-premium">
+                            <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest mb-2">المصروفات + الرواتب</p>
+                            <h4 class="text-xl md:text-2xl font-extrabold text-warning" x-text="((summary.expenses || 0) + (summary.total_salaries_paid || 0)) + ' ج.م'"></h4>
+                        </div>
+                        <div class="p-6 md:p-8 rounded-[2.5rem] border shadow-premium" :class="(summary.net_profit >= 0) ? 'bg-primary text-white border-primary' : 'bg-accent text-white border-accent'">
+                            <p class="text-[10px] font-extrabold uppercase tracking-widest mb-2 text-white/70">صافي الربح النهائي</p>
+                            <h4 class="text-xl md:text-2xl font-extrabold" x-text="(summary.net_profit || 0) + ' ج.م'"></h4>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                        <!-- رسم بياني لصافي الربح بالفروع -->
+                        <div class="bg-white p-10 rounded-[3rem] border-2 border-slate-300 shadow-premium">
+                            <h3 class="text-xl font-extrabold text-primary mb-6">صافي الربح حسب الفرع</h3>
+                            <div class="h-[300px]">
+                                <canvas id="branchProfitChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- جدول تفصيلي للأرباح لكل فرع -->
+                        <div class="bg-white rounded-[3rem] border-2 border-slate-300 shadow-premium overflow-hidden flex flex-col">
+                            <div class="p-8 border-b border-outline">
+                                <h3 class="text-xl font-extrabold text-primary">التحليل المالي التفصيلي للفروع</h3>
+                            </div>
+                            <div class="table-responsive flex-1 p-8">
+                                <table class="w-full text-right border-collapse">
+                                    <thead>
+                                        <tr class="text-slate-400 border-b border-outline">
+                                            <th class="pb-4 text-xs font-bold">الفرع</th>
+                                            <th class="pb-4 text-xs font-bold">الإيرادات</th>
+                                            <th class="pb-4 text-xs font-bold">تكاليف</th>
+                                            <th class="pb-4 text-xs font-bold text-left">صافي الربح</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-outline">
+                                        <template x-if="branchReports.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="py-10 text-center text-slate-400 font-bold">لا توجد بيانات لهذا الشهر</td>
+                                            </tr>
+                                        </template>
+                                        <template x-for="report in branchReports" :key="report.branch_id">
+                                            <tr class="hover:bg-slate-50">
+                                                <td class="py-4 font-extrabold text-primary" x-text="report.branch_name"></td>
+                                                <td class="py-4 font-bold text-success" x-text="report.total_sales + ' ج.م'"></td>
+                                                <td class="py-4 font-bold text-accent" x-text="(report.cogs + report.expenses + report.total_salaries_paid) + ' ج.م'"></td>
+                                                <td class="py-4 font-black text-left" :class="report.net_profit >= 0 ? 'text-primary' : 'text-accent'" x-text="report.net_profit + ' ج.م'"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- المنتجات الأكثر مبيعاً وتأجيراً -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                        <!-- أفضل المنتجات مبيعاً -->
+                        <div class="bg-white rounded-[3rem] border-2 border-slate-300 shadow-premium overflow-hidden flex flex-col">
+                            <div class="p-8 border-b border-outline flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-success/10 text-success flex items-center justify-center">
+                                    <span class="material-symbols-outlined">trending_up</span>
+                                </div>
+                                <h3 class="text-xl font-extrabold text-primary">أفضل المنتجات مبيعاً</h3>
+                            </div>
+                            <div class="table-responsive flex-1 p-8">
+                                <table class="w-full text-right border-collapse">
+                                    <thead>
+                                        <tr class="text-slate-400 border-b border-outline">
+                                            <th class="pb-4 text-xs font-bold">المنتج</th>
+                                            <th class="pb-4 text-xs font-bold">الفرع</th>
+                                            <th class="pb-4 text-xs font-bold text-center">الكمية المباعة</th>
+                                            <th class="pb-4 text-xs font-bold text-left">الإيرادات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-outline">
+                                        <template x-if="topSales.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="py-10 text-center text-slate-400 font-bold">لا توجد مبيعات هذا الشهر</td>
+                                            </tr>
+                                        </template>
+                                        <template x-for="item in topSales" :key="item.name + item.branch_name">
+                                            <tr class="hover:bg-slate-50">
+                                                <td class="py-4 font-extrabold text-primary">
+                                                    <span x-text="item.name + ' (' + item.category + ')'"></span>
+                                                    <span class="text-xs text-slate-400 block" x-text="(item.color || '') + ' - ' + (item.size || '')"></span>
+                                                </td>
+                                                <td class="py-4 font-bold text-slate-500" x-text="item.branch_name"></td>
+                                                <td class="py-4 font-bold text-success text-center" x-text="item.total_sold"></td>
+                                                <td class="py-4 font-black text-primary text-left" x-text="item.revenue + ' ج.م'"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- أفضل المنتجات تأجيراً -->
+                        <div class="bg-white rounded-[3rem] border-2 border-slate-300 shadow-premium overflow-hidden flex flex-col">
+                            <div class="p-8 border-b border-outline flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                    <span class="material-symbols-outlined">styler</span>
+                                </div>
+                                <h3 class="text-xl font-extrabold text-primary">المنتجات الأكثر تأجيراً</h3>
+                            </div>
+                            <div class="table-responsive flex-1 p-8">
+                                <table class="w-full text-right border-collapse">
+                                    <thead>
+                                        <tr class="text-slate-400 border-b border-outline">
+                                            <th class="pb-4 text-xs font-bold">المنتج</th>
+                                            <th class="pb-4 text-xs font-bold">الفرع</th>
+                                            <th class="pb-4 text-xs font-bold text-center">مرات التأجير</th>
+                                            <th class="pb-4 text-xs font-bold text-left">الإيرادات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-outline">
+                                        <template x-if="topRentals.length === 0">
+                                            <tr>
+                                                <td colspan="4" class="py-10 text-center text-slate-400 font-bold">لا توجد تأجيرات هذا الشهر</td>
+                                            </tr>
+                                        </template>
+                                        <template x-for="item in topRentals" :key="item.name + item.branch_name">
+                                            <tr class="hover:bg-slate-50">
+                                                <td class="py-4 font-extrabold text-primary">
+                                                    <span x-text="item.name + ' (' + item.category + ')'"></span>
+                                                    <span class="text-xs text-slate-400 block" x-text="(item.color || '') + ' - ' + (item.size || '')"></span>
+                                                </td>
+                                                <td class="py-4 font-bold text-slate-500" x-text="item.branch_name"></td>
+                                                <td class="py-4 font-bold text-indigo-600 text-center" x-text="item.times_rented"></td>
+                                                <td class="py-4 font-black text-primary text-left" x-text="item.rental_revenue + ' ج.م'"></td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('reportsData', () => ({
+                sidebarExpanded: false,
+                sidebarLocked: localStorage.getItem('sidebarLocked') === 'true',
+                mobileMenuOpen: false,
+                
+                selectedMonth: new Date().toISOString().substring(0, 7), // YYYY-MM
+                branchReports: [],
+                summary: { total_sales: 0, cogs: 0, expenses: 0, total_salaries_paid: 0, net_profit: 0 },
+                topSales: [],
+                topRentals: [],
+                
+                chartInstance: null,
+
+                async initData() {
+                    try {
+                        const [profitRes, topRes] = await Promise.all([
+                            fetch(`/api/reports/profit?month=${this.selectedMonth}`),
+                            fetch(`/api/reports/top-products?month=${this.selectedMonth}`)
+                        ]);
+                        
+                        const profitData = await profitRes.json();
+                        this.branchReports = profitData.branch_reports;
+                        this.summary = profitData.summary;
+                        
+                        const topData = await topRes.json();
+                        this.topSales = topData.top_sales;
+                        this.topRentals = topData.top_rentals;
+                        
+                        this.updateChart();
+                    } catch (err) {
+                        console.error('Error fetching reports:', err);
+                    }
+                },
+                
+                updateChart() {
+                    const ctx = document.getElementById('branchProfitChart').getContext('2d');
+                    
+                    if(this.chartInstance) {
+                        this.chartInstance.destroy();
+                    }
+                    
+                    const labels = this.branchReports.map(b => b.branch_name);
+                    const profits = this.branchReports.map(b => b.net_profit);
+                    
+                    const backgroundColors = profits.map(p => p >= 0 ? '#1E293B' : '#EF4444');
+
+                    this.chartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'صافي الربح (ج.م)',
+                                data: profits,
+                                backgroundColor: backgroundColors,
+                                borderRadius: 12,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { 
+                                    grid: { borderDash: [5, 5], color: '#e2e8f0' }, 
+                                    ticks: { font: { family: 'Cairo' } } 
+                                },
+                                x: { 
+                                    grid: { display: false }, 
+                                    ticks: { font: { family: 'Cairo' } } 
+                                }
+                            }
+                        }
+                    });
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
+
+

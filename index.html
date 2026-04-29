@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>براند - نقطة البيع الاحترافية</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1E293B",
+                        secondary: "#64748B",
+                        accent: "#EF4444",
+                        success: "#22C55E",
+                        warning: "#F59E0B",
+                        background: "#F8FAFC",
+                        surface: "#FFFFFF",
+                        "on-surface": "#0F172A",
+                        outline: "#CBD5E1",
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.75rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                    },
+                    fontFamily: {
+                        display: ["Cairo", "sans-serif"],
+                        body: ["Cairo", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 40px -10px rgba(0,0,0,0.05)',
+                        'premium-hover': '0 20px 50px -12px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        [x-cloak] { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        body { font-family: 'Cairo', sans-serif; background-color: #F8FAFC; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; margin: 0; padding: 0; height: auto; }
+            .invoice-box { 
+                box-shadow: none !important; 
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                position: relative !important;
+                height: auto !important;
+                font-size: 14px !important;
+            }
+            /* Ensure the modal container doesn't hide content */
+            .fixed.inset-0 { position: static !important; display: block !important; }
+            .flex.items-center.justify-center { display: block !important; }
+        }
+        .print-only { display: none; }
+    </style>
+    <script src="router.js"></script>
+    <link href="responsive.css" rel="stylesheet">
+    <script src="auth.js"></script>
+</head>
+
+<body class="text-on-surface antialiased overflow-hidden" x-data="posApp()" x-init="init()">
+    
+    <div class="flex h-screen overflow-hidden no-print">
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="sidebar-backdrop" :class="mobileMenuOpen ? 'active' : ''" @click="mobileMenuOpen = false"></div>
+
+        <!-- القائمة الجانبية (Sidebar) -->
+        <aside 
+            @mouseenter="sidebarExpanded = true" 
+            @mouseleave="sidebarExpanded = false"
+            class="sidebar-main sticky top-0 h-screen bg-primary text-white z-[70] transition-all duration-300 overflow-hidden group shrink-0 shadow-2xl flex flex-col"
+            :class="[(sidebarExpanded || sidebarLocked) ? 'w-72' : 'w-20', mobileMenuOpen ? 'mobile-open' : '']">
+            <div class="py-6 px-5 flex items-center justify-between overflow-hidden">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 shrink-0 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+                        <span class="material-symbols-outlined text-white font-bold text-lg">shopping_bag</span>
+                    </div>
+                    <h1 class="text-xl font-extrabold tracking-tight transition-opacity duration-300 whitespace-nowrap" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">براند</h1>
+                </div>
+                <button @click="sidebarLocked = !sidebarLocked; localStorage.setItem('sidebarLocked', sidebarLocked)" 
+                        class="transition-all duration-300 hover:bg-white/10 p-2 rounded-lg"
+                        :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                    <span class="material-symbols-outlined text-sm" :style="sidebarLocked ? 'font-variation-settings: \'FILL\' 1' : ''">push_pin</span>
+                </button>
+            </div>
+
+            <nav class="mt-4 px-3 flex flex-col gap-2 flex-1 overflow-y-auto no-scrollbar">
+                <a href="Dashboard.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">dashboard</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">لوحة التحكم</span>
+                </a>
+                <a href="index.html" class="nav-link flex items-center rounded-xl bg-white/10 text-white font-medium transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">point_of_sale</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الكاشير</span>
+                </a>
+                <a href="Rentals.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">styler</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التأجير</span>
+                </a>
+                                <a href="Alterations.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">content_cut</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التعديلات</span>
+                </a>
+                <a href="Customers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">group</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">العملاء</span>
+                </a>
+                <a href="Inventory.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المخزون</span>
+                </a>
+                <a href="Suppliers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموردين</span>
+                </a>
+                <a href="Employees.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">badge</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموظفين</span>
+                </a>
+                <a href="Expenses.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المصاريف</span>
+                </a>
+                <a href="Reports.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التقارير</span>
+                </a>
+                <a href="Settings.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">settings</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الإعدادات</span>
+                </a>
+            </nav>
+
+            <div class="p-3 mt-auto border-t border-white/10">
+                <button onclick="logout()" class="w-full flex items-center rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">logout</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">تسجيل الخروج</span>
+                </button>
+            </div>
+</aside>
+
+        <!-- منطقة محتوى الـ POS -->
+        <div class="flex-1 flex flex-col min-w-0 h-screen" x-data="posSystem()">
+            <!-- الهيدر العلوي -->
+            <header class="h-20 shrink-0 px-4 md:px-8 flex items-center justify-between bg-white border-b border-outline">
+                <div class="flex items-center gap-3 md:gap-6 flex-1">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-btn w-10 h-10 items-center justify-center rounded-xl bg-primary text-white">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <div class="relative flex-1 max-w-lg">
+                        <span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">barcode_scanner</span>
+                        <input x-model="searchQuery" type="text" placeholder="امسح الباركود أو SKU أو ابحث..." class="w-full bg-slate-100 border-2 border-slate-300 rounded-xl py-3 pr-12 pl-4 text-sm focus:ring-2 focus:ring-primary/10 transition-all font-bold">
+                    </div>
+                    <div class="h-10 w-[1px] bg-outline hidden md:block"></div>
+                    <div class="hidden md:flex items-center gap-2">
+                        <span class="w-2 h-2 bg-success rounded-full animate-pulse"></span>
+                        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">متصل بالنظام</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="text-left ml-4 hidden sm:block">
+                        <p class="text-sm font-extrabold text-primary" x-text="currentTime"></p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">الاثنين، 27 أبريل 2026</p>
+                    </div>
+                    <div id="user-info-display" class="flex items-center gap-3 pr-4 md:border-r border-outline"></div>
+                </div>
+            </header>
+
+            <!-- منطقة العمل الرئيسية -->
+            <div class="flex-1 flex overflow-hidden">
+                <!-- شبكة المنتجات -->
+                <div class="flex-1 flex flex-col bg-background">
+                    <!-- فئات المنتجات -->
+                    <div class="p-6 shrink-0 flex items-center gap-3 overflow-x-auto no-scrollbar" x-data="{ activeCat: 'الكل' }">
+                        <button @click="activeCat = 'الكل'; searchQuery = ''" :class="activeCat === 'الكل' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-2 border-slate-300 text-slate-500 hover:bg-slate-50'" class="px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all">الكل</button>
+                        <button @click="activeCat = 'تيشيرت'; searchQuery = 'تيشيرت'" :class="activeCat === 'تيشيرت' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-2 border-slate-300 text-slate-500 hover:bg-slate-50'" class="px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all">تيشيرت</button>
+                        <button @click="activeCat = 'قمصان'; searchQuery = 'قمصان'" :class="activeCat === 'قمصان' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-2 border-slate-300 text-slate-500 hover:bg-slate-50'" class="px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all">قمصان</button>
+                        <button @click="activeCat = 'بدل'; searchQuery = 'بدل'" :class="activeCat === 'بدل' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-2 border-slate-300 text-slate-500 hover:bg-slate-50'" class="px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all">بدل</button>
+                        <button @click="activeCat = 'صديري'; searchQuery = 'صديري'" :class="activeCat === 'صديري' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-2 border-slate-300 text-slate-500 hover:bg-slate-50'" class="px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all">صديري</button>
+                        <button @click="activeCat = 'جينز'; searchQuery = 'جينز'" :class="activeCat === 'جينز' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-2 border-slate-300 text-slate-500 hover:bg-slate-50'" class="px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all">جينز</button>
+                        <button @click="activeCat = 'إكسسوارات'; searchQuery = 'إكسسوارات'" :class="activeCat === 'إكسسوارات' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-2 border-slate-300 text-slate-500 hover:bg-slate-50'" class="px-6 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all">إكسسوارات</button>
+                    </div>
+
+                    <!-- قائمة المنتجات -->
+                    <div class="flex-1 overflow-y-auto p-6 pt-0">
+                        <template x-if="inventory.length === 0">
+                            <div class="h-full flex flex-col items-center justify-center text-slate-400 space-y-4">
+                                <span class="material-symbols-outlined text-6xl">inventory</span>
+                                <p class="text-sm font-bold uppercase tracking-widest">لا توجد منتجات للعرض</p>
+                            </div>
+                        </template>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
+                            <template x-for="item in filteredInventory" :key="item.id">
+                                <button @click="addToCart(item)" class="bg-white p-4 rounded-[2rem] border-2 border-slate-300 shadow-sm hover:shadow-premium hover:-translate-y-1 transition-all group text-right">
+                                    <div class="aspect-square bg-slate-50 rounded-2xl mb-4 overflow-hidden relative">
+                                        <img :src="item.image_url" class="w-full h-full object-cover transition-transform group-hover:scale-110">
+                                        <div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors"></div>
+                                    </div>
+                                    <h4 class="text-sm font-extrabold text-primary mb-1 line-clamp-1" x-text="item.name + ' (' + item.category + ')'"></h4>
+                                    
+                                    <!-- تفاصيل إضافية للكسوة -->
+                                    <div class="flex flex-wrap gap-1.5 mb-2 mt-2">
+                                        <template x-if="item.color">
+                                            <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md text-[11px] font-extrabold" x-text="'لون: ' + item.color"></span>
+                                        </template>
+                                        <template x-if="item.size_cut">
+                                            <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-md text-[11px] font-extrabold" x-text="'مقاس: ' + item.size_cut"></span>
+                                        </template>
+                                    </div>
+                                    <div class="space-y-1 mb-3">
+                                        <p class="text-[11px] text-slate-500 font-extrabold font-mono bg-slate-50 px-2 py-0.5 rounded" x-text="'SKU: ' + item.code"></p>
+                                        <template x-if="item.barcode">
+                                            <p class="text-[11px] text-slate-500 font-extrabold font-mono bg-slate-50 px-2 py-0.5 rounded" x-text="'Barcode: ' + item.barcode"></p>
+                                        </template>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-base font-extrabold text-primary" x-text="item.price + ' ج.م'"></span>
+                                        <span class="w-8 h-8 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 group-hover:bg-accent group-hover:text-white transition-all">
+                                            <span class="material-symbols-outlined text-sm">add</span>
+                                        </span>
+                                    </div>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Backdrop (mobile) -->
+                <div class="cart-backdrop" :class="cartOpen ? 'active' : ''" @click="cartOpen = false"></div>
+                <!-- سلة المبيعات (Terminal) -->
+                <aside class="pos-cart-aside w-96 bg-white border-r border-outline flex flex-col shadow-2xl z-20" :class="cartOpen ? 'cart-open' : ''">
+                    <div class="p-6 border-b border-outline shrink-0 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-lg font-extrabold text-primary">الطلب الحالي</h3>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest" x-text="'رقم: #POS-' + orderNumber"></p>
+                        </div>
+                        <button @click="cart = []" class="w-10 h-10 flex items-center justify-center rounded-xl bg-accent/10 text-accent hover:bg-accent hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-sm">delete_sweep</span>
+                        </button>
+                    </div>
+
+                    <!-- قائمة السلة -->
+                    <div class="flex-1 overflow-y-auto p-6 space-y-4">
+                        <template x-if="cart.length === 0">
+                            <div class="h-full flex flex-col items-center justify-center text-slate-300 space-y-4 opacity-50">
+                                <span class="material-symbols-outlined text-6xl">shopping_basket</span>
+                                <p class="text-xs font-bold uppercase tracking-widest">السلة فارغة</p>
+                            </div>
+                        </template>
+                        <template x-for="(item, index) in cart" :key="index">
+                            <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-transparent hover:border-outline transition-all">
+                                <div class="w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                                    <img :src="item.image_url" class="w-full h-full object-cover">
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-extrabold text-primary truncate" x-text="item.name"></p>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <button @click="item.qty > 1 ? item.qty-- : cart.splice(index, 1)" class="w-6 h-6 flex items-center justify-center rounded-lg bg-white border-2 border-slate-300 text-slate-400 hover:text-accent transition-all">
+                                            <span class="material-symbols-outlined text-xs">remove</span>
+                                        </button>
+                                        <span class="text-sm font-extrabold text-primary w-6 text-center" x-text="item.qty"></span>
+                                        <button @click="item.qty++" class="w-6 h-6 flex items-center justify-center rounded-lg bg-white border-2 border-slate-300 text-slate-400 hover:text-primary transition-all">
+                                            <span class="material-symbols-outlined text-xs">add</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-sm font-extrabold text-primary" x-text="(item.price * item.qty).toFixed(2) + ' ج.م'"></p>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- ملخص الفاتورة -->
+                    <div class="p-8 border-t border-outline bg-slate-50 shrink-0">
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between items-center text-sm font-bold text-slate-500">
+                                <span>المجموع الفرعي</span>
+                                <span x-text="subtotal.toFixed(2) + ' ج.م'"></span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm font-bold text-slate-500">
+                                <span x-text="'الضريبة (' + (taxRate * 100).toFixed(0) + '%)'"></span>
+                                <span x-text="tax.toFixed(2) + ' ج.م'"></span>
+                            </div>
+                            <div class="flex justify-between items-center pt-3 border-t border-outline">
+                                <span class="text-lg font-extrabold text-primary">الإجمالي</span>
+                                <span class="text-2xl font-extrabold text-accent" x-text="total.toFixed(2) + ' ج.م'"></span>
+                            </div>
+                        </div>
+                        <button @click="showCheckoutModal = true" :disabled="cart.length === 0" class="w-full py-4 bg-primary text-white rounded-2xl text-sm font-extrabold hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3">
+                            <span class="material-symbols-outlined">payments</span> إتمام الدفع والشراء
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal إتمام الدفع -->
+                <div x-show="showCheckoutModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <div x-show="showCheckoutModal" @click="showCheckoutModal = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+                        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                        <div x-show="showCheckoutModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-[2.5rem] text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full p-10">
+                            <div class="mb-8 flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-2xl font-extrabold text-primary" id="modal-title">إتمام عملية البيع</h3>
+                                    <p class="text-sm text-slate-400 font-medium mt-2">أدخل بيانات العميل لإتمام الفاتورة.</p>
+                                </div>
+                                <div class="px-6 py-4 bg-slate-50 rounded-2xl border-2 border-slate-300 text-left">
+                                    <span class="text-xs font-bold text-slate-500 block mb-1">إجمالي الفاتورة</span>
+                                    <span class="text-2xl font-extrabold text-accent" x-text="total.toFixed(2) + ' ج.م'"></span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">اسم العميل</label>
+                                    <input x-model="checkoutInfo.name" type="text" class="w-full bg-slate-50 border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/10 transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">رقم الهاتف</label>
+                                    <input x-model="checkoutInfo.phone" type="text" class="w-full bg-slate-50 border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/10 transition-all text-right">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">طريقة الدفع</label>
+                                    <select x-model="checkoutInfo.payment_method" class="w-full bg-slate-50 border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/10 transition-all">
+                                        <option value="cash">كاش</option>
+                                        <option value="visa">فيزا</option>
+                                        <option value="transfer">تحويل بنكي/محفظة</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">الفرع</label>
+                                    <select x-model="checkoutInfo.branch_id" :disabled="window.currentUser && window.currentUser.role === 'branch_user'" class="w-full bg-slate-50 border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/10 transition-all disabled:opacity-50 disabled:bg-slate-200">
+                                        <template x-for="b in branches.filter(br => !br.is_main_warehouse)" :key="b.id">
+                                            <option :value="b.id" x-text="b.name"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- طلب تعديلات / تفصيل -->
+                            <div class="mt-8 p-6 bg-amber-50 rounded-2xl border-2 border-dashed border-amber-300">
+                                <label class="flex items-center gap-3 cursor-pointer">
+                                    <input type="checkbox" x-model="checkoutInfo.needs_alteration" class="w-5 h-5 rounded border-amber-400 text-amber-600 focus:ring-amber-500">
+                                    <span class="text-sm font-extrabold text-amber-900 italic">هذا الطلب يحتاج إلى تعديلات (تقصير، تضييق، تفصيل...)</span>
+                                </label>
+                                
+                                <div x-show="checkoutInfo.needs_alteration" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6" x-transition>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-amber-600 uppercase tracking-widest mb-2 pr-2">وصف التعديلات المطلوبة</label>
+                                        <textarea x-model="checkoutInfo.alteration_notes" rows="2" class="w-full bg-white border-2 border-amber-200 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-amber-500/20 transition-all placeholder:text-amber-200" placeholder="مثال: تقصير البنطلون 2 سم وتضييق الجاكت من الجوانب..."></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-extrabold text-amber-600 uppercase tracking-widest mb-2 pr-2">تاريخ الاستلام المتوقع</label>
+                                        <input x-model="checkoutInfo.alteration_due_date" type="date" class="w-full bg-white border-2 border-amber-200 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-amber-500/20 transition-all">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-10 flex gap-3">
+                                <button @click="completeCheckout()" class="flex-1 py-4 bg-accent text-white rounded-2xl text-sm font-extrabold hover:bg-red-600 transition-all shadow-xl shadow-accent/20">تأكيد الدفع</button>
+                                <button @click="showCheckoutModal = false" class="px-8 py-4 bg-slate-100 text-slate-400 rounded-2xl text-sm font-extrabold hover:bg-slate-200 transition-all">إلغاء</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                </div>
+            </header>
+        </div>
+    </div>
+
+    <!-- Cart FAB (Mobile) -->
+    <button @click="cartOpen = !cartOpen" class="cart-fab fixed bottom-6 left-6 w-16 h-16 bg-accent text-white rounded-full shadow-2xl shadow-accent/30 items-center justify-center z-[180] hover:scale-110 transition-transform">
+        <span class="material-symbols-outlined text-2xl">shopping_cart</span>
+        <span x-show="cart.length > 0" class="absolute -top-1 -right-1 w-6 h-6 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center" x-text="cart.length"></span>
+    </button>
+
+    <!-- Modal الفاتورة -->
+    <div x-show="showInvoiceModal" x-cloak class="fixed inset-0 z-[110] overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div x-show="showInvoiceModal" @click="showInvoiceModal = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity no-print"></div>
+            
+            <div x-show="showInvoiceModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100" class="relative bg-white border-2 border-slate-900 shadow-2xl max-w-md w-full overflow-hidden invoice-box">
+                <!-- رأس الفاتورة -->
+                <div class="p-6 border-b border-slate-900 text-center">
+                    <h2 class="text-3xl font-black text-slate-900" x-text="settings.store_name"></h2>
+                    <p class="text-sm text-slate-500 font-bold uppercase mt-1">فاتورة مبيعات مبسطة</p>
+                    <div class="mt-4 text-xs text-slate-500 font-bold space-y-1">
+                        <p x-show="settings.show_address === 'true'" x-text="settings.store_address"></p>
+                        <p x-show="settings.show_phone === 'true'" x-text="'هاتف: ' + settings.store_phone"></p>
+                        <p x-show="settings.show_email === 'true' && settings.store_email" x-text="settings.store_email"></p>
+                    </div>
+                </div>
+
+                <!-- بيانات العملية -->
+                <div class="p-6">
+                    <div class="grid grid-cols-2 gap-y-3 text-sm text-slate-900 mb-6 pb-6 border-b border-slate-200">
+                        <span class="font-bold">رقم الفاتورة:</span>
+                        <span class="text-left font-mono" x-text="invoiceData?.orderNumber"></span>
+                        <span class="font-bold">التاريخ:</span>
+                        <span class="text-left" x-text="invoiceData?.date"></span>
+                        <span class="font-bold">العميل:</span>
+                        <span class="text-left" x-text="invoiceData?.customer"></span>
+                    </div>
+
+                    <!-- جدول الأصناف -->
+                    <table class="w-full text-sm text-slate-900 mb-6">
+                        <thead class="border-b-2 border-slate-900">
+                            <tr>
+                                <th class="py-2 text-right">الصنف</th>
+                                <th class="py-2 text-center">الكمية</th>
+                                <th class="py-2 text-left">الإجمالي</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <template x-for="item in invoiceData?.items">
+                                <tr>
+                                    <td class="py-3 font-bold" x-text="item.name"></td>
+                                    <td class="py-3 text-center" x-text="item.qty"></td>
+                                    <td class="py-3 text-left font-bold" x-text="(item.qty * item.price).toFixed(2)"></td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+
+                    <!-- ملخص الحساب -->
+                    <div class="border-t-2 border-slate-900 pt-6 space-y-3">
+                        <div class="flex justify-between text-sm font-bold">
+                            <span>المجموع الفرعي:</span>
+                            <span x-text="invoiceData?.subtotal.toFixed(2)"></span>
+                        </div>
+                        <div class="flex justify-between text-sm font-bold">
+                            <span x-text="'الضريبة (' + (taxRate * 100).toFixed(0) + '%):'"></span>
+                            <span x-text="invoiceData?.tax.toFixed(2)"></span>
+                        </div>
+                        <div class="flex justify-between items-center pt-5 mt-2 border-t-2 border-slate-900">
+                            <span class="text-xl font-black">الإجمالي الكلي:</span>
+                            <span class="text-2xl font-black" x-text="invoiceData?.total.toFixed(2) + ' ج.م'"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الأزرار -->
+                <div class="p-6 bg-slate-50 border-t border-slate-100 text-center flex gap-3 no-print">
+                    <button @click="window.print()" class="flex-1 py-3 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-lg">print</span> طباعة
+                    </button>
+                    <button @click="showInvoiceModal = false" class="px-6 py-3 border border-slate-200 text-slate-500 rounded-xl text-xs font-bold hover:bg-white hover:text-slate-900 transition-all">إغلاق</button>
+                </div>
+                
+                <div class="p-8 text-center hidden print-only border-t border-slate-200">
+                    <p class="text-xs font-bold text-slate-900">شكراً لزيارتكم</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('posApp', () => ({
+                currentTime: '',
+                orderNumber: Math.floor(1000 + Math.random() * 9000),
+                searchQuery: '',
+                sidebarExpanded: false,
+                sidebarLocked: localStorage.getItem('sidebarLocked') === 'true',
+                mobileMenuOpen: false,
+                cartOpen: false,
+                cart: [],
+                inventory: [],
+                branches: [],
+                taxRate: 0.14,
+                settings: {
+                    store_name: '',
+                    store_email: '',
+                    store_phone: '',
+                    store_address: '',
+                    show_email: 'true',
+                    show_phone: 'true',
+                    show_address: 'true'
+                },
+                showCheckoutModal: false,
+                showInvoiceModal: false,
+                invoiceData: null,
+                checkoutInfo: {
+                    name: 'عميل نقدي',
+                    phone: '00000000000',
+                    payment_method: 'cash',
+                    branch_id: 1,
+                    needs_alteration: false,
+                    alteration_notes: '',
+                    alteration_due_date: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0]
+                },
+                async init() {
+                    setInterval(() => {
+                        this.currentTime = new Date().toLocaleTimeString('ar-EG');
+                    }, 1000);
+                    await this.fetchData();
+                    if (window.currentUser && window.currentUser.role === 'branch_user') {
+                        this.checkoutInfo.branch_id = window.currentUser.branch_id;
+                    }
+                },
+                async fetchData() {
+                    try {
+                        const [invRes, branchRes, settingsRes] = await Promise.all([
+                            fetch('/api/inventory'),
+                            fetch('/api/branches'),
+                            fetch('/api/settings')
+                        ]);
+                        this.inventory = await invRes.json();
+                        this.branches = await branchRes.json();
+                        const settingsData = await settingsRes.json();
+                        Object.assign(this.settings, settingsData);
+                        if (this.settings.tax_rate) {
+                            this.taxRate = parseFloat(this.settings.tax_rate) / 100;
+                        }
+                    } catch (err) {
+                        console.error('Error fetching data:', err);
+                    }
+                },
+                addToCart(product) {
+                    const existing = this.cart.find(i => i.id === product.id);
+                    if (existing) {
+                        existing.qty++;
+                    } else {
+                        this.cart.push({ ...product, qty: 1 });
+                    }
+                },
+                async completeCheckout() {
+                    try {
+                        const orderData = {
+                            customer_name: this.checkoutInfo.name,
+                            customer_phone: this.checkoutInfo.phone,
+                            branch_id: this.checkoutInfo.branch_id,
+                            payment_method: this.checkoutInfo.payment_method,
+                            total_amount: this.total,
+                            items: this.cart.map(i => ({ id: i.id, quantity: i.qty, price: i.price }))
+                        };
+                        const response = await fetch('/api/orders', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(orderData)
+                        });
+                        if (response.ok) {
+                            const orderResult = await response.json();
+                            
+                            // Create Alteration Task if requested
+                            if (this.checkoutInfo.needs_alteration) {
+                                await fetch('/api/alterations', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        order_id: orderResult.id,
+                                        customer_id: orderResult.customer_id,
+                                        branch_id: this.checkoutInfo.branch_id,
+                                        description: this.checkoutInfo.alteration_notes,
+                                        due_date: this.checkoutInfo.alteration_due_date
+                                    })
+                                });
+                            }
+
+                            this.invoiceData = {
+                                orderNumber: 'POS-' + this.orderNumber,
+                                date: new Date().toLocaleString('ar-EG'),
+                                customer: this.checkoutInfo.name,
+                                items: [...this.cart],
+                                subtotal: this.subtotal,
+                                tax: this.tax,
+                                total: this.total
+                            };
+                            this.cart = [];
+                            this.showCheckoutModal = false;
+                            this.showInvoiceModal = true;
+                            this.orderNumber = Math.floor(1000 + Math.random() * 9000);
+                            
+                            // Reset checkoutInfo
+                            this.checkoutInfo.needs_alteration = false;
+                            this.checkoutInfo.alteration_notes = '';
+                            
+                            await this.fetchData();
+                        }
+                    } catch (err) {
+                        console.error('Error creating order:', err);
+                    }
+                },
+                get subtotal() {
+                    return this.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+                },
+                get tax() {
+                    return this.subtotal * this.taxRate;
+                },
+                get total() {
+                    return this.subtotal + this.tax;
+                },
+                get filteredInventory() {
+                    if (!this.searchQuery) return this.inventory;
+                    const q = this.searchQuery.toLowerCase();
+                    return this.inventory.filter(item => 
+                        item.name.toLowerCase().includes(q) || 
+                        (item.code && item.code.toLowerCase().includes(q)) ||
+                        (item.barcode && item.barcode.toLowerCase().includes(q))
+                    );
+                }
+            }));
+        });
+    </script>
+
+</body>
+</html>
+

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>براند - إدارة الموظفين</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1E293B",
+                        secondary: "#64748B",
+                        accent: "#EF4444",
+                        success: "#22C55E",
+                        warning: "#F59E0B",
+                        background: "#F8FAFC",
+                        surface: "#FFFFFF",
+                        "on-surface": "#0F172A",
+                        outline: "#CBD5E1",
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.75rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                    },
+                    fontFamily: {
+                        display: ["Cairo", "sans-serif"],
+                        body: ["Cairo", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 40px -10px rgba(0,0,0,0.05)',
+                        'premium-hover': '0 20px 50px -12px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        [x-cloak] { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        body { font-family: 'Cairo', sans-serif; background-color: #F8FAFC; }
+    </style>
+    <script src="router.js"></script>
+    <link href="responsive.css" rel="stylesheet">
+    <script src="auth.js"></script>
+</head>
+
+<body class="text-on-surface antialiased overflow-x-hidden" x-data="employeeApp()" x-init="initData()">
+    
+    <div class="flex min-h-screen">
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="sidebar-backdrop" :class="mobileMenuOpen ? 'active' : ''" @click="mobileMenuOpen = false"></div>
+
+        <!-- القائمة الجانبية (Sidebar) -->
+        <aside 
+            @mouseenter="sidebarExpanded = true" 
+            @mouseleave="sidebarExpanded = false"
+            class="sidebar-main sticky top-0 h-screen bg-primary text-white z-[70] transition-all duration-300 overflow-hidden group shrink-0 shadow-2xl flex flex-col"
+            :class="[(sidebarExpanded || sidebarLocked) ? 'w-72' : 'w-20', mobileMenuOpen ? 'mobile-open' : '']">
+            <div class="py-6 px-5 flex items-center justify-between overflow-hidden">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 shrink-0 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+                        <span class="material-symbols-outlined text-white font-bold text-lg">shopping_bag</span>
+                    </div>
+                    <h1 class="text-xl font-extrabold tracking-tight transition-opacity duration-300 whitespace-nowrap" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">براند</h1>
+                </div>
+                <button @click="sidebarLocked = !sidebarLocked; localStorage.setItem('sidebarLocked', sidebarLocked)" 
+                        class="transition-all duration-300 hover:bg-white/10 p-2 rounded-lg"
+                        :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                    <span class="material-symbols-outlined text-sm" :style="sidebarLocked ? 'font-variation-settings: \'FILL\' 1' : ''">push_pin</span>
+                </button>
+            </div>
+
+            <nav class="mt-4 px-3 flex flex-col gap-2 flex-1 overflow-y-auto no-scrollbar">
+                <a href="Dashboard.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">dashboard</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">لوحة التحكم</span>
+                </a>
+                <a href="index.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">point_of_sale</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الكاشير</span>
+                </a>
+                <a href="Rentals.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">styler</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التأجير</span>
+                </a>
+                                <a href="Alterations.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">content_cut</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التعديلات</span>
+                </a>
+                <a href="Customers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">group</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">العملاء</span>
+                </a>
+                <a href="Inventory.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المخزون</span>
+                </a>
+                <a href="Suppliers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموردين</span>
+                </a>
+                <a href="Employees.html" class="nav-link flex items-center rounded-xl bg-white/10 text-white font-medium transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">badge</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموظفين</span>
+                </a>
+                <a href="Expenses.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المصاريف</span>
+                </a>
+                <a href="Reports.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التقارير</span>
+                </a>
+                <a href="Settings.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">settings</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الإعدادات</span>
+                </a>
+            </nav>
+
+            <div class="p-3 mt-auto border-t border-white/10">
+                <button onclick="logout()" class="w-full flex items-center rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">logout</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">تسجيل الخروج</span>
+                </button>
+            </div>
+</aside>
+
+        <!-- منطقة المحتوى الرئيسية -->
+        <div class="flex-1 flex flex-col min-w-0">
+            <!-- الهيدر (Header) -->
+            <header class="h-20 bg-white/70 backdrop-blur-xl border-b border-outline sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
+                <div class="flex items-center gap-3 flex-1">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-btn w-10 h-10 items-center justify-center rounded-xl bg-primary text-white">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <h2 class="text-lg md:text-xl font-extrabold text-primary">إدارة الموظفين والرواتب</h2>
+                </div>
+                
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button @click="showTransactionModal = true" class="px-3 md:px-5 py-2.5 rounded-xl bg-accent text-white text-sm font-bold hover:bg-red-600 transition-all shadow-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">account_balance_wallet</span> <span class="hidden md:inline">سلف ومكافآت</span>
+                    </button>
+                    <button @click="showAttendanceModal = true" class="px-3 md:px-5 py-2.5 rounded-xl bg-success text-white text-sm font-bold hover:bg-green-600 transition-all shadow-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">how_to_reg</span> <span class="hidden md:inline">تسجيل حضور</span>
+                    </button>
+                    <button @click="resetForm(); showAddModal = true" class="px-3 md:px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-slate-800 transition-all shadow-lg flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">person_add</span> <span class="hidden md:inline">إضافة موظف</span>
+                    </button>
+                    <div id="user-info-display" class="flex items-center gap-3 pr-4 md:border-r border-outline hidden md:flex"></div>
+                </div>
+            </header>
+
+            <!-- المحتوى الرئيسي -->
+            <main class="p-8">
+                <div class="max-w-7xl mx-auto">
+                    <!-- إحصائيات سريعة -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 mb-10">
+                        <div class="bg-white p-6 rounded-3xl border-2 border-slate-300 shadow-premium flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                <span class="material-symbols-outlined">badge</span>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-400 font-extrabold uppercase tracking-widest">عدد الموظفين</p>
+                                <p class="text-2xl font-extrabold text-primary" x-text="employees.length"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- جدول الموظفين -->
+                    <div class="bg-white rounded-[2.5rem] border-2 border-slate-300 shadow-premium overflow-hidden">
+                        <div class="table-responsive">
+                            <table class="w-full text-right border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900">
+                                        <th class="px-8 py-5 text-xs font-extrabold text-slate-200 uppercase tracking-widest">الموظف</th>
+                                        <th class="px-8 py-5 text-xs font-extrabold text-slate-200 uppercase tracking-widest">الوظيفة</th>
+                                        <th class="px-8 py-5 text-xs font-extrabold text-slate-200 uppercase tracking-widest">الفرع</th>
+                                        <th class="px-8 py-5 text-xs font-extrabold text-slate-200 uppercase tracking-widest">الراتب الأساسي</th>
+                                        <th class="px-8 py-5 text-xs font-extrabold text-slate-200 uppercase tracking-widest text-left">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-outline">
+                                    <template x-if="employees.length === 0">
+                                        <tr>
+                                            <td colspan="5" class="px-8 py-20 text-center text-slate-400">
+                                                <span class="material-symbols-outlined text-4xl mb-2">group_off</span>
+                                                <p class="text-xs font-bold uppercase tracking-widest">لا يوجد موظفين مسجلين</p>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <template x-for="emp in employees" :key="emp.id">
+                                        <tr class="hover:bg-slate-50 transition-colors">
+                                            <td class="px-8 py-6">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-xs text-primary" x-text="emp.name.charAt(0)"></div>
+                                                    <div>
+                                                        <p class="text-sm font-extrabold text-primary" x-text="emp.name"></p>
+                                                        <p class="text-xs text-slate-600 font-bold" x-text="emp.phone || 'لا يوجد هاتف'"></p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-8 py-6">
+                                                <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold" x-text="emp.position || 'غير محدد'"></span>
+                                            </td>
+                                            <td class="px-8 py-6 text-sm font-bold text-primary" x-text="emp.branch_name || 'رئيسي'"></td>
+                                            <td class="px-8 py-6 text-sm font-extrabold text-accent" x-text="emp.basic_salary + ' ج.م'"></td>
+                                            <td class="px-8 py-6 text-left flex gap-2 justify-end">
+                                                <button @click="openSummary(emp.id)" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all">تفاصيل الراتب</button>
+                                                <button @click="editEmployee(emp)" class="p-2 text-slate-400 hover:text-primary transition-all"><span class="material-symbols-outlined">edit</span></button>
+                                                <button @click="deleteEmployee(emp.id)" class="p-2 text-slate-400 hover:text-accent transition-all"><span class="material-symbols-outlined">delete</span></button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Modal إضافة موظف -->
+            <div x-show="showAddModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="showAddModal = false"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white rounded-[2.5rem] text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full p-10">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-extrabold text-primary">إضافة موظف جديد</h3>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">اسم الموظف</label>
+                                <input x-model="newEmp.name" type="text" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">الوظيفة</label>
+                                <input x-model="newEmp.position" type="text" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">الراتب الأساسي</label>
+                                <input x-model="newEmp.basic_salary" type="number" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">رقم الهاتف</label>
+                                <input x-model="newEmp.phone" type="text" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">الفرع</label>
+                                <select x-model="newEmp.branch_id" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                                    <option value="">اختر الفرع...</option>
+                                    <template x-for="b in branches" :key="b.id">
+                                        <option :value="b.id" x-text="b.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- قسم إنشاء حساب دخول -->
+                        <div x-show="!isEditing || newEmp.username" class="mt-8 bg-slate-50 p-6 rounded-2xl border-2 border-slate-300">
+                            <template x-if="!isEditing">
+                                <label class="flex items-center gap-3 cursor-pointer mb-4">
+                                    <input type="checkbox" x-model="newEmp.create_account" class="w-5 h-5 rounded text-primary focus:ring-primary">
+                                    <span class="text-sm font-extrabold text-primary">إنشاء حساب دخول للنظام لهذا الموظف</span>
+                                </label>
+                            </template>
+                            <template x-if="isEditing && newEmp.username">
+                                <div class="mb-4 flex items-center gap-2 text-primary font-black">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>تعديل حساب الدخول</span>
+                                </div>
+                            </template>
+                            
+                            <div x-show="newEmp.create_account || (isEditing && newEmp.username)" class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4" x-transition>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">اسم المستخدم</label>
+                                    <input x-model="newEmp.username" type="text" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">كلمة المرور (اتركها فارغة للمحافظة عليها)</label>
+                                    <input x-model="newEmp.password" type="password" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all" :placeholder="isEditing ? '********' : ''">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">الصلاحيات (دور النظام)</label>
+                                    <select x-model="newEmp.role" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                                        <option value="branch_user">موظف فرع (بيانات فرعه فقط)</option>
+                                        <option value="admin">مدير عام (كافة بيانات الفروع)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- اختيار الصفحات المسموحة -->
+                            <div x-show="newEmp.create_account || (isEditing && newEmp.username)" class="mt-6 border-t border-outline pt-4" x-transition>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-3">الصفحات المسموح بظهورها لهذا الموظف</label>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <template x-for="page in availablePages" :key="page.id">
+                                        <label class="flex items-center gap-2 cursor-pointer bg-white p-3 rounded-xl border-2 border-slate-300 hover:border-primary/30 transition-all">
+                                            <input type="checkbox" :value="page.id" x-model="newEmp.permissions" class="w-4 h-4 rounded text-primary focus:ring-primary">
+                                            <span class="text-xs font-bold text-slate-700" x-text="page.name"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 flex justify-end gap-3">
+                            <button @click="showAddModal = false" class="px-6 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition-all">إلغاء</button>
+                            <button @click="saveEmployee" class="px-6 py-3 rounded-xl bg-primary text-white font-bold hover:bg-slate-800 transition-all" x-text="isEditing ? 'حفظ التعديلات' : 'حفظ وإضافة'"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal تسجيل حضور/انصراف -->
+            <div x-show="showAttendanceModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="showAttendanceModal = false"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white rounded-[2.5rem] text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full p-10">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-extrabold text-primary">تسجيل حضور/انصراف</h3>
+                        </div>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">الموظف</label>
+                                <select x-model="attendance.employee_id" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                                    <option value="">اختر الموظف...</option>
+                                    <template x-for="emp in employees" :key="emp.id">
+                                        <option :value="emp.id" x-text="emp.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">وقت الحضور</label>
+                                <input x-model="attendance.check_in" type="time" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">وقت الانصراف</label>
+                                <input x-model="attendance.check_out" type="time" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                            </div>
+                        </div>
+                        <div class="mt-10 flex gap-3">
+                            <button @click="saveAttendance()" class="flex-1 py-4 bg-success text-white rounded-2xl text-sm font-extrabold hover:bg-green-600 transition-all shadow-xl shadow-success/20">تسجيل الوقت</button>
+                            <button @click="showAttendanceModal = false" class="px-6 py-4 bg-slate-100 text-slate-400 rounded-2xl text-sm font-extrabold hover:bg-slate-200 transition-all">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal سلف وخصومات ومكافآت -->
+            <div x-show="showTransactionModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="showTransactionModal = false"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white rounded-[2.5rem] text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full p-10">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-extrabold text-primary">تسجيل حركة موظف</h3>
+                        </div>
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">الموظف</label>
+                                <select x-model="transaction.employee_id" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                                    <option value="">اختر الموظف...</option>
+                                    <template x-for="emp in employees" :key="emp.id">
+                                        <option :value="emp.id" x-text="emp.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">نوع الحركة</label>
+                                <select x-model="transaction.type" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                                    <option value="advance">سلفة (خصم مؤجل)</option>
+                                    <option value="deduction">خصم (جزاءات)</option>
+                                    <option value="bonus">مكافأة</option>
+                                    <option value="salary_payment">تسديد راتب</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">المبلغ</label>
+                                <input x-model="transaction.amount" type="number" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase mb-2">ملاحظات</label>
+                                <input x-model="transaction.notes" type="text" class="w-full bg-white border-2 border-slate-300 shadow-sm focus:border-primary rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all">
+                            </div>
+                        </div>
+                        <div class="mt-10 flex gap-3">
+                            <button @click="saveTransaction()" class="flex-1 py-4 bg-accent text-white rounded-2xl text-sm font-extrabold hover:bg-red-600 transition-all shadow-xl shadow-accent/20">تأكيد الحركة</button>
+                            <button @click="showTransactionModal = false" class="px-6 py-4 bg-slate-100 text-slate-400 rounded-2xl text-sm font-extrabold hover:bg-slate-200 transition-all">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal تفاصيل راتب موظف -->
+            <div x-show="showSummaryModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" @click="showSummaryModal = false"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+                    <div class="inline-block align-bottom bg-white rounded-[2.5rem] text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full p-10">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-extrabold text-primary">تفاصيل الراتب (هذا الشهر)</h3>
+                        </div>
+                        <div class="space-y-4 text-lg">
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="font-bold text-slate-600">الراتب الأساسي:</span>
+                                <span class="font-extrabold" x-text="(summaryData.basic_salary || 0) + ' ج.م'"></span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2 text-success">
+                                <span class="font-bold">المكافآت:</span>
+                                <span class="font-extrabold" x-text="'+ ' + (summaryData.bonuses || 0) + ' ج.م'"></span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2 text-warning">
+                                <span class="font-bold">السلف:</span>
+                                <span class="font-extrabold" x-text="'- ' + (summaryData.advances || 0) + ' ج.م'"></span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2 text-accent">
+                                <span class="font-bold">الخصومات (جزاءات):</span>
+                                <span class="font-extrabold" x-text="'- ' + (summaryData.deductions || 0) + ' ج.م'"></span>
+                            </div>
+                            <div class="flex justify-between pt-4 bg-slate-50 p-4 rounded-xl">
+                                <span class="font-black text-xl text-primary">الصافي:</span>
+                                <span class="font-black text-xl text-primary" x-text="(summaryData.net_salary || 0) + ' ج.م'"></span>
+                            </div>
+                        </div>
+                        <div class="mt-10">
+                            <button @click="showSummaryModal = false" class="w-full py-4 bg-primary text-white rounded-2xl text-sm font-extrabold hover:bg-slate-800 transition-all">إغلاق</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('employeeApp', () => ({
+                sidebarExpanded: false,
+                sidebarLocked: localStorage.getItem('sidebarLocked') === 'true',
+                mobileMenuOpen: false,
+                showAddModal: false,
+                showAttendanceModal: false,
+                showTransactionModal: false,
+                showSummaryModal: false,
+                
+                employees: [],
+                branches: [],
+                
+                newEmp: { name: '', position: '', branch_id: '', basic_salary: 0, phone: '', create_account: false, username: '', password: '', role: 'branch_user', permissions: ['Dashboard.html', 'index.html', 'Rentals.html', 'Customers.html', 'Inventory.html'] },
+                availablePages: [
+                    { id: 'Dashboard.html', name: 'لوحة التحكم' },
+                    { id: 'index.html', name: 'الكاشير' },
+                    { id: 'Rentals.html', name: 'التأجير' },
+                    { id: 'Customers.html', name: 'العملاء' },
+                    { id: 'Inventory.html', name: 'المخزون' },
+                    { id: 'Suppliers.html', name: 'الموردين' },
+                    { id: 'Employees.html', name: 'الموظفين' },
+                    { id: 'Expenses.html', name: 'المصاريف' },
+                    { id: 'Reports.html', name: 'التقارير' },
+                    { id: 'Settings.html', name: 'الإعدادات' }
+                ],
+                attendance: { employee_id: '', date: new Date().toISOString().split('T')[0], check_in: '', check_out: '' },
+                transaction: { employee_id: '', type: 'advance', amount: '', notes: '' },
+                summaryData: {},
+
+                async initData() {
+                    try {
+                        const [empRes, brRes] = await Promise.all([
+                            fetch('/api/employees'),
+                            fetch('/api/branches')
+                        ]);
+                        this.employees = await empRes.json();
+                        this.branches = await brRes.json();
+                    } catch (err) {
+                        console.error('Error fetching data:', err);
+                    }
+                },
+                resetForm() {
+                    this.isEditing = false;
+                    this.newEmp = { name: '', position: '', branch_id: '', basic_salary: 0, phone: '', create_account: false, username: '', password: '', role: 'branch_user', permissions: ['Dashboard.html', 'index.html', 'Rentals.html', 'Customers.html', 'Inventory.html'] };
+                },
+                async saveEmployee() {
+                    if(!this.newEmp.name || !this.newEmp.basic_salary) return alert('الرجاء إدخال الاسم والراتب الأساسي');
+                    
+                    try {
+                        const url = this.isEditing ? `/api/employees/${this.newEmp.id}` : '/api/employees';
+                        const method = this.isEditing ? 'PUT' : 'POST';
+
+                        if (!this.isEditing && this.newEmp.create_account && (!this.newEmp.username || !this.newEmp.password)) {
+                            return alert('الرجاء إدخال اسم المستخدم وكلمة المرور للحساب');
+                        }
+
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.newEmp)
+                        });
+                        if (res.ok) {
+                            await this.initData();
+                            this.showAddModal = false;
+                        } else {
+                            const data = await res.json();
+                            alert(data.error || 'حدث خطأ أثناء الحفظ');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+                editEmployee(emp) {
+                    this.isEditing = true;
+                    this.newEmp = { 
+                        ...emp,
+                        role: emp.user_role || 'branch_user',
+                        permissions: emp.user_permissions || ['Dashboard.html', 'index.html', 'Rentals.html', 'Customers.html', 'Inventory.html'],
+                        password: '' // Clear password field for security
+                    };
+                    this.showAddModal = true;
+                },
+                async deleteEmployee(id) {
+                    if(!confirm('هل أنت متأكد من حذف هذا الموظف؟ سيتم حذف جميع بيانات الحضور والسلف المرتبطة به.')) return;
+                    try {
+                        const res = await fetch(`/api/employees/${id}`, { method: 'DELETE' });
+                        if(res.ok) await this.initData();
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+                async saveAttendance() {
+                    try {
+                        const res = await fetch('/api/attendance', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.attendance)
+                        });
+                        if (res.ok) {
+                            alert('تم تسجيل الوقت بنجاح');
+                            this.showAttendanceModal = false;
+                            this.attendance = { employee_id: '', date: new Date().toISOString().split('T')[0], check_in: '', check_out: '' };
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+                async saveTransaction() {
+                    try {
+                        const res = await fetch('/api/employee_transactions', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.transaction)
+                        });
+                        if (res.ok) {
+                            alert('تم تسجيل الحركة بنجاح');
+                            this.showTransactionModal = false;
+                            this.transaction = { employee_id: '', type: 'advance', amount: '', notes: '' };
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                },
+                async openSummary(empId) {
+                    try {
+                        const res = await fetch(`/api/employees/${empId}/summary`);
+                        if(res.ok) {
+                            this.summaryData = await res.json();
+                            this.showSummaryModal = true;
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+            }));
+        });
+    </script>
+</body>
+</html>
+
+

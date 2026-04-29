@@ -1,0 +1,652 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>براند - نظام التأجير</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1E293B",
+                        secondary: "#64748B",
+                        accent: "#EF4444",
+                        success: "#22C55E",
+                        warning: "#F59E0B",
+                        background: "#F8FAFC",
+                        surface: "#FFFFFF",
+                        "on-surface": "#0F172A",
+                        outline: "#CBD5E1",
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.75rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                    },
+                    fontFamily: {
+                        display: ["Cairo", "sans-serif"],
+                        body: ["Cairo", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 40px -10px rgba(0,0,0,0.05)',
+                        'premium-hover': '0 20px 50px -12px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        [x-cloak] {
+            display: none !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #F8FAFC;
+        }
+    </style>
+    <script src="router.js"></script>
+    <link href="responsive.css" rel="stylesheet">
+    <script src="auth.js"></script>
+</head>
+
+<body class="text-on-surface antialiased overflow-x-hidden" x-data="rentalsApp()" x-init="initData()">
+
+    <div class="flex min-h-screen">
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="sidebar-backdrop" :class="mobileMenuOpen ? 'active' : ''" @click="mobileMenuOpen = false"></div>
+
+        <!-- القائمة الجانبية (Sidebar) -->
+        <aside @mouseenter="sidebarExpanded = true" @mouseleave="sidebarExpanded = false"
+            class="sidebar-main sticky top-0 h-screen bg-primary text-white z-[70] transition-all duration-300 overflow-hidden group shrink-0 shadow-2xl flex flex-col"
+            :class="[(sidebarExpanded || sidebarLocked) ? 'w-72' : 'w-20', mobileMenuOpen ? 'mobile-open' : '']">
+            <div class="py-6 px-5 flex items-center justify-between overflow-hidden">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 shrink-0 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+                        <span class="material-symbols-outlined text-white font-bold text-lg">shopping_bag</span>
+                    </div>
+                    <h1 class="text-xl font-extrabold tracking-tight transition-opacity duration-300 whitespace-nowrap" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">براند</h1>
+                </div>
+                <button @click="sidebarLocked = !sidebarLocked; localStorage.setItem('sidebarLocked', sidebarLocked)" 
+                        class="transition-all duration-300 hover:bg-white/10 p-2 rounded-lg"
+                        :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                    <span class="material-symbols-outlined text-sm" :style="sidebarLocked ? 'font-variation-settings: \'FILL\' 1' : ''">push_pin</span>
+                </button>
+            </div>
+
+            <nav class="mt-4 px-3 flex flex-col gap-2 flex-1 overflow-y-auto no-scrollbar">
+                <a href="Dashboard.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">dashboard</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">لوحة التحكم</span>
+                </a>
+                <a href="index.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">point_of_sale</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الكاشير</span>
+                </a>
+                <a href="Rentals.html" class="nav-link flex items-center rounded-xl bg-white/10 text-white font-medium transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">styler</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التأجير</span>
+                </a>
+                                <a href="Alterations.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">content_cut</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التعديلات</span>
+                </a>
+                <a href="Customers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">group</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">العملاء</span>
+                </a>
+                <a href="Inventory.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المخزون</span>
+                </a>
+                <a href="Suppliers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموردين</span>
+                </a>
+                <a href="Employees.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">badge</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموظفين</span>
+                </a>
+                <a href="Expenses.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المصاريف</span>
+                </a>
+                <a href="Reports.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التقارير</span>
+                </a>
+                <a href="Settings.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">settings</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الإعدادات</span>
+                </a>
+            </nav>
+
+            <div class="p-3 mt-auto border-t border-white/10">
+                <button onclick="logout()" class="w-full flex items-center rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">logout</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">تسجيل الخروج</span>
+                </button>
+            </div>
+</aside>
+
+        <!-- منطقة المحتوى الرئيسية -->
+        <div class="flex-1 flex flex-col min-w-0">
+            <!-- الهيدر (Header) -->
+            <header
+                class="h-20 bg-white/70 backdrop-blur-xl border-b border-outline sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
+                <div class="flex items-center gap-3 flex-1">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-btn w-10 h-10 items-center justify-center rounded-xl bg-primary text-white">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <h2 class="text-lg md:text-xl font-extrabold text-primary">نظام تأجير البدل</h2>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div id="user-info-display" class="flex items-center gap-3 pr-4 md:border-r border-outline"></div>
+                </div>
+            </header>
+
+            <!-- المحتوى الرئيسي -->
+            <main class="p-8 space-y-6">
+                <!-- قسم إدخال بيانات التأجير (Top Card) -->
+                <div
+                    class="bg-white rounded-3xl border-2 border-slate-300 shadow-sm p-6 flex flex-col md:flex-row gap-8 items-start">
+
+                    <!-- نموذج الإدخال (اليمين) -->
+                    <div class="flex-1 w-full space-y-6">
+                        <!-- الصف الأول -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">اسم العميل</label>
+                                <div class="relative">
+                                    <input x-model="newRental.customer_name" type="text"
+                                        class="w-full bg-white border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold focus:ring-2 focus:ring-primary/20">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">person</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">رقم
+                                    الموبايل</label>
+                                <div class="relative">
+                                    <input x-model="newRental.customer_phone" type="text"
+                                        class="w-full bg-white border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold focus:ring-2 focus:ring-primary/20">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">call</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">الرقم
+                                    القومي</label>
+                                <div class="relative">
+                                    <input x-model="newRental.national_id" type="text"
+                                        class="w-full bg-white border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold focus:ring-2 focus:ring-primary/20">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">badge</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- الصف الثاني -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">باركود / SKU</label>
+                                <div class="relative">
+                                    <input x-model="searchBarcode" @input.debounce.500ms="findProductByBarcode()" @keydown.enter.prevent="findProductByBarcode(true)" type="text" placeholder="امسح الباركود هنا..."
+                                        class="w-full bg-white border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold focus:ring-2 focus:ring-primary/20">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">barcode</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">الموديل</label>
+                                <div class="relative">
+                                    <input readonly :value="selectedProduct ? selectedProduct.name + ' (' + selectedProduct.category + ')' : ''" type="text"
+                                        class="w-full bg-slate-50 border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold text-slate-500">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">apparel</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">اللون</label>
+                                <div class="relative">
+                                    <input readonly :value="selectedProduct ? selectedProduct.color : ''" type="text"
+                                        class="w-full bg-slate-50 border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold text-slate-500">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">palette</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">المقاس</label>
+                                <div class="relative">
+                                    <input readonly :value="selectedProduct ? selectedProduct.size_cut : ''" type="text"
+                                        class="w-full bg-slate-50 border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold text-slate-500">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">straighten</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- صف التفاصيل الإضافية (SKU والباركود) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" x-show="selectedProduct">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-400 mb-2 text-center">SKU المختار</label>
+                                <input readonly :value="selectedProduct ? selectedProduct.code : ''" type="text"
+                                    class="w-full bg-slate-50 border-2 border-slate-300 rounded-xl py-2 px-4 text-center font-mono font-bold text-primary">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-slate-400 mb-2 text-center">الباركود المختار</label>
+                                <input readonly :value="selectedProduct ? selectedProduct.barcode : ''" type="text"
+                                    class="w-full bg-slate-50 border-2 border-slate-300 rounded-xl py-2 px-4 text-center font-mono font-bold text-primary">
+                            </div>
+                        </div>
+
+                        <!-- الصف الثالث -->
+                        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">تاريخ
+                                    الاستلام</label>
+                                <div class="relative">
+                                    <input x-model="newRental.pickup_date" type="date"
+                                        class="w-full bg-white border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold focus:ring-2 focus:ring-primary/20">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">event</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">تاريخ العودة</label>
+                                <div class="relative">
+                                    <input x-model="newRental.return_date" type="date"
+                                        class="w-full bg-white border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold focus:ring-2 focus:ring-primary/20">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">event_upcoming</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">الفرع</label>
+                                <div class="relative">
+                                    <select x-model="newRental.branch_id" :disabled="window.currentUser && window.currentUser.role === 'branch_user'"
+                                        class="w-full bg-white border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold focus:ring-2 focus:ring-primary/20 disabled:opacity-50 disabled:bg-slate-200">
+                                        <template x-for="b in branches.filter(br => !br.is_main_warehouse)" :key="b.id">
+                                            <option :value="b.id" x-text="b.name"></option>
+                                        </template>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg pointer-events-none">store</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">المقدم</label>
+                                <div class="relative">
+                                    <input x-model="newRental.deposit" type="number" step="0.01"
+                                        class="w-full bg-white border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold focus:ring-2 focus:ring-primary/20">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">payments</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-primary mb-2 text-center">المتبقي</label>
+                                <div class="relative">
+                                    <input x-model="newRental.remaining" type="number" step="0.01"
+                                        class="w-full bg-white border-2 border-slate-300 rounded-xl py-2 px-4 pr-10 text-center font-semibold focus:ring-2 focus:ring-primary/20">
+                                    <span
+                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">account_balance_wallet</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- الإجمالي -->
+                        <div class="flex items-center gap-4 pt-2">
+                            <div class="flex-1 bg-slate-50 border-2 border-slate-300 rounded-xl py-2 px-6 text-center">
+                                <span class="text-xs font-bold text-slate-400 block mb-0.5">الإجمالي</span>
+                                <span class="text-lg font-black text-primary" x-text="(Number(newRental.deposit || 0) + Number(newRental.remaining || 0)).toFixed(2) + ' ج.م'"></span>
+                            </div>
+                        </div>
+
+                        <!-- زر الحفظ -->
+                        <div class="flex justify-start pt-4">
+                            <button @click="submitRental()"
+                                class="px-8 py-3 bg-primary text-white rounded-xl text-sm font-bold hover:bg-slate-800 transition-all shadow-lg flex items-center gap-2">
+                                <span class="material-symbols-outlined">save</span> حفظ حجز الإيجار
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- الصورة (اليسار) -->
+                    <div
+                        class="w-full md:w-64 shrink-0 rounded-2xl overflow-hidden border-2 border-slate-300 bg-slate-50 relative aspect-[3/4]">
+                        <template x-if="selectedProduct && selectedProduct.image_url">
+                            <img :src="selectedProduct.image_url" class="w-full h-full object-cover">
+                        </template>
+                        <template x-if="!selectedProduct || !selectedProduct.image_url">
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
+                                <span class="material-symbols-outlined text-5xl mb-2">image</span>
+                                <span class="text-xs font-bold">صورة المنتج</span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- جدول التأجير (Bottom Card) -->
+                <div class="bg-white rounded-3xl border-2 border-slate-300 shadow-sm overflow-hidden">
+                    <!-- تبويبات -->
+                    <div class="flex border-b border-outline">
+                        <button @click="rentalTab = 'active'" :class="rentalTab === 'active' ? 'text-primary border-b-2 border-primary bg-slate-50' : 'text-slate-400 hover:text-primary'" class="flex-1 py-4 text-sm font-extrabold transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-sm">schedule</span> نشطة
+                            <span class="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-[10px] font-black" x-text="rentals.filter(r => r.status === 'active').length"></span>
+                        </button>
+                        <button @click="rentalTab = 'returned'" :class="rentalTab === 'returned' ? 'text-success border-b-2 border-success bg-success/5' : 'text-slate-400 hover:text-success'" class="flex-1 py-4 text-sm font-extrabold transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-sm">check_circle</span> مُرجعة
+                            <span class="px-2 py-0.5 bg-success/10 text-success rounded-full text-[10px] font-black" x-text="rentals.filter(r => r.status === 'returned').length"></span>
+                        </button>
+                        <button @click="rentalTab = 'sold'" :class="rentalTab === 'sold' ? 'text-accent border-b-2 border-accent bg-accent/5' : 'text-slate-400 hover:text-accent'" class="flex-1 py-4 text-sm font-extrabold transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-sm">sell</span> محولة لبيع
+                            <span class="px-2 py-0.5 bg-accent/10 text-accent rounded-full text-[10px] font-black" x-text="rentals.filter(r => r.status === 'sold').length"></span>
+                        </button>
+                    </div>
+                    <table class="w-full text-center border-collapse">
+                        <thead>
+                            <tr class="bg-primary text-white">
+                                <th class="px-4 py-4 text-sm font-bold border-l border-slate-700">رقم الحجز</th>
+                                <th class="px-4 py-4 text-sm font-bold border-l border-slate-700">اسم العميل</th>
+                                <th class="px-4 py-4 text-sm font-bold border-l border-slate-700">الموبايل</th>
+                                <th class="px-4 py-4 text-sm font-bold border-l border-slate-700">تاريخ الاستلام</th>
+                                <th class="px-4 py-4 text-sm font-bold border-l border-slate-700">تاريخ العودة</th>
+                                <th class="px-4 py-4 text-sm font-bold border-l border-slate-700">تأخير</th>
+                                <th class="px-4 py-4 text-sm font-bold border-l border-slate-700">الأيام</th>
+                                <th class="px-4 py-4 text-sm font-bold">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-outline">
+                            <template x-if="filteredRentals.length === 0">
+                                <tr>
+                                    <td colspan="8" class="px-4 py-12 text-slate-400 text-sm font-bold">لا توجد حجوزات
+                                        مسجلة</td>
+                                </tr>
+                            </template>
+                            <template x-for="rental in filteredRentals" :key="rental.id">
+                                <tr class="hover:bg-slate-50 transition-colors">
+                                    <td class="px-4 py-4 text-sm font-semibold text-primary" x-text="'#' + rental.id"></td>
+                                    <td class="px-4 py-4 text-sm font-semibold text-primary" x-text="rental.customer_name"></td>
+                                    <td class="px-4 py-4 text-sm text-slate-600 font-semibold" x-text="rental.customer_phone"></td>
+                                    <td class="px-4 py-4 text-sm font-semibold text-primary" x-text="formatDate(rental.pickup_date)"></td>
+                                    <td class="px-4 py-4 text-sm font-semibold text-slate-500" x-text="formatDate(rental.return_date)"></td>
+                                    <td class="px-4 py-4 text-sm font-bold" :class="isDelayed(rental) ? 'text-accent' : 'text-success'" x-text="isDelayed(rental) ? 'نعم' : 'لا'"></td>
+                                    <td class="px-4 py-4 text-sm font-bold text-primary" x-text="getDelayDays(rental)"></td>
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <template x-if="rental.status === 'active'">
+                                                <div class="flex items-center gap-2">
+                                                    <button @click="convertToSale(rental)" class="px-4 py-2 bg-accent/90 text-white rounded-lg text-xs font-bold hover:bg-accent transition-all shadow-sm">تحويل لبيع</button>
+                                                    <button @click="returnRental(rental)" class="px-4 py-2 bg-success/90 text-white rounded-lg text-xs font-bold hover:bg-success transition-all shadow-sm">إرجاع</button>
+                                                </div>
+                                            </template>
+                                            <template x-if="rental.status === 'returned'">
+                                                <span class="px-3 py-1.5 bg-success/10 text-success rounded-lg text-xs font-bold">✓ تم الإرجاع</span>
+                                            </template>
+                                            <template x-if="rental.status === 'sold'">
+                                                <span class="px-3 py-1.5 bg-accent/10 text-accent rounded-lg text-xs font-bold">✓ تم البيع</span>
+                                            </template>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('rentalsApp', () => ({
+                sidebarExpanded: false,
+                sidebarLocked: localStorage.getItem('sidebarLocked') === 'true',
+                mobileMenuOpen: false,
+                rentals: [],
+                inventory: [],
+                branches: [],
+                searchBarcode: '',
+                rentalTab: 'active',
+                selectedProduct: null,
+                newRental: {
+                    customer_name: '',
+                    customer_phone: '',
+                    national_id: '',
+                    inventory_id: '',
+                    branch_id: 1,
+                    pickup_date: new Date().toISOString().split('T')[0],
+                    return_date: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+                    deposit: '',
+                    remaining: '',
+                    total_price: 0,
+                    notes: ''
+                },
+
+                async initData() {
+                    try {
+                        const [rentalsRes, invRes, branchRes] = await Promise.all([
+                            fetch('/api/rentals'),
+                            fetch('/api/inventory'),
+                            fetch('/api/branches')
+                        ]);
+                        this.rentals = await rentalsRes.json();
+                        this.inventory = await invRes.json();
+                        this.branches = await branchRes.json();
+
+                        // Default branch to main
+                        if (this.branches.length > 0) this.newRental.branch_id = this.branches[0].id;
+                        if (window.currentUser && window.currentUser.role === 'branch_user') {
+                            this.newRental.branch_id = window.currentUser.branch_id;
+                        }
+                    } catch (err) {
+                        console.error('Error fetching data:', err);
+                    }
+                },
+
+                get activeRentals() {
+                    return this.rentals.filter(r => r.status === 'active');
+                },
+
+                get filteredRentals() {
+                    return this.rentals.filter(r => r.status === this.rentalTab);
+                },
+
+                findProductByBarcode(showAlert = false) {
+                    if (!this.searchBarcode) {
+                        this.selectedProduct = null;
+                        this.newRental.inventory_id = '';
+                        return;
+                    }
+                    const search = this.searchBarcode.trim().toLowerCase();
+                    const product = this.inventory.find(i => 
+                        (i.barcode && i.barcode.trim().toLowerCase() === search) || 
+                        (i.code && i.code.trim().toLowerCase() === search)
+                    );
+                    
+                    if (product) {
+                        this.selectedProduct = product;
+                        this.newRental.inventory_id = product.id;
+                        this.newRental.total_price = product.price;
+                    } else {
+                        this.selectedProduct = null;
+                        this.newRental.inventory_id = '';
+                        if(showAlert) alert('لم يتم العثور على منتج بهذا الباركود');
+                    }
+                },
+
+                formatDate(dateString) {
+                    if (!dateString) return '-';
+                    const d = new Date(dateString);
+                    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                },
+
+                isDelayed(rental) {
+                    if (rental.status === 'returned' || rental.status === 'sold') return false;
+                    const returnDate = new Date(rental.return_date);
+                    const today = new Date();
+                    return today > returnDate && today.toDateString() !== returnDate.toDateString();
+                },
+
+                getDelayDays(rental) {
+                    if (!this.isDelayed(rental)) return 0;
+                    const returnDate = new Date(rental.return_date);
+                    const today = new Date();
+                    const diffTime = Math.abs(today - returnDate);
+                    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                },
+
+                async submitRental() {
+                    if (!this.newRental.customer_name || !this.newRental.inventory_id || !this.newRental.deposit) {
+                        alert('برجاء إكمال البيانات الأساسية (العميل، الباركود، المقدم)');
+                        return;
+                    }
+
+                    this.newRental.total_price = Number(this.newRental.deposit) + Number(this.newRental.remaining || 0);
+
+                    try {
+                        const res = await fetch('/api/rentals', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.newRental)
+                        });
+                        if (res.ok) {
+                            // Reset form
+                            this.newRental = {
+                                customer_name: '',
+                                customer_phone: '',
+                                national_id: '',
+                                inventory_id: '',
+                                branch_id: this.branches[0]?.id || 1,
+                                pickup_date: new Date().toISOString().split('T')[0],
+                                return_date: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+                                deposit: '',
+                                remaining: '',
+                                total_price: 0,
+                                notes: ''
+                            };
+                            this.searchBarcode = '';
+                            this.selectedProduct = null;
+                            await this.initData();
+                            alert('تم حفظ الإيجار بنجاح');
+                        }
+                    } catch (err) {
+                        console.error('Error creating rental:', err);
+                    }
+                },
+
+                async returnRental(rental) {
+                    const delayDays = this.getDelayDays(rental);
+                    const finePerDay = 50; // غرامة يومية بالجنيه
+                    let fineAmount = delayDays * finePerDay;
+                    
+                    let message = 'هل أنت متأكد من استرجاع هذه البدلة للمخزن؟';
+                    if (delayDays > 0) {
+                        message = `تأخير ${delayDays} يوم — غرامة مقترحة: ${fineAmount} ج.م\n\nأدخل مبلغ الغرامة النهائي:`;
+                        const userFine = prompt(message, fineAmount);
+                        if (userFine === null) return;
+                        fineAmount = Number(userFine) || 0;
+                    } else {
+                        if (!confirm(message)) return;
+                        fineAmount = 0;
+                    }
+
+                    try {
+                        const res = await fetch(`/api/rentals/${rental.id}/return`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ fine_amount: fineAmount })
+                        });
+                        if (res.ok) {
+                            await this.initData();
+                            alert(fineAmount > 0 ? `تم الإرجاع بنجاح — غرامة: ${fineAmount} ج.م` : 'تم الإرجاع بنجاح');
+                        }
+                    } catch (err) {
+                        console.error('Error returning rental:', err);
+                    }
+                },
+
+                async convertToSale(rental) {
+                    const sellPrice = prompt('أدخل السعر النهائي للبيع (ج.م):', rental.total_price);
+                    if (sellPrice === null || sellPrice === '') return;
+
+                    try {
+                        const res = await fetch(`/api/rentals/${rental.id}/sell`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ sell_price: Number(sellPrice) })
+                        });
+                        if (res.ok) {
+                            await this.initData();
+                            alert('تم تحويل التأجير إلى بيع بنجاح');
+                        }
+                    } catch (err) {
+                        console.error('Error converting rental to sale:', err);
+                    }
+                }
+            }));
+        });
+    </script>
+</body>
+
+</html>
+

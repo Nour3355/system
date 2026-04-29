@@ -1,0 +1,455 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>براند - إدارة الموردين</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1E293B",
+                        secondary: "#64748B",
+                        accent: "#EF4444",
+                        success: "#22C55E",
+                        warning: "#F59E0B",
+                        background: "#F8FAFC",
+                        surface: "#FFFFFF",
+                        "on-surface": "#0F172A",
+                        outline: "#CBD5E1",
+                    },
+                    borderRadius: {
+                        'DEFAULT': '0.75rem',
+                        'lg': '1rem',
+                        'xl': '1.5rem',
+                        '2xl': '2rem',
+                        '3xl': '2.5rem',
+                    },
+                    fontFamily: {
+                        display: ["Cairo", "sans-serif"],
+                        body: ["Cairo", "sans-serif"],
+                    },
+                    boxShadow: {
+                        'premium': '0 10px 40px -10px rgba(0,0,0,0.05)',
+                        'premium-hover': '0 20px 50px -12px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        [x-cloak] { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+        body { font-family: 'Cairo', sans-serif; background-color: #F8FAFC; }
+    </style>
+    <script src="router.js"></script>
+    <link href="responsive.css" rel="stylesheet">
+    <script src="auth.js"></script>
+</head>
+
+<body class="text-on-surface antialiased overflow-x-hidden" x-data="supplierApp()" x-init="initData()">
+    
+    <div class="flex min-h-screen">
+        <!-- Mobile Sidebar Backdrop -->
+        <div class="sidebar-backdrop" :class="mobileMenuOpen ? 'active' : ''" @click="mobileMenuOpen = false"></div>
+
+        <!-- القائمة الجانبية (Sidebar) -->
+        <aside 
+            @mouseenter="sidebarExpanded = true" 
+            @mouseleave="sidebarExpanded = false"
+            class="sidebar-main sticky top-0 h-screen bg-primary text-white z-[70] transition-all duration-300 overflow-hidden group shrink-0 shadow-2xl flex flex-col"
+            :class="[(sidebarExpanded || sidebarLocked) ? 'w-72' : 'w-20', mobileMenuOpen ? 'mobile-open' : '']">
+            <div class="py-6 px-5 flex items-center justify-between overflow-hidden">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 shrink-0 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
+                        <span class="material-symbols-outlined text-white font-bold text-lg">shopping_bag</span>
+                    </div>
+                    <h1 class="text-xl font-extrabold tracking-tight transition-opacity duration-300 whitespace-nowrap" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">براند</h1>
+                </div>
+                <button @click="sidebarLocked = !sidebarLocked; localStorage.setItem('sidebarLocked', sidebarLocked)" 
+                        class="transition-all duration-300 hover:bg-white/10 p-2 rounded-lg"
+                        :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                    <span class="material-symbols-outlined text-sm" :style="sidebarLocked ? 'font-variation-settings: \'FILL\' 1' : ''">push_pin</span>
+                </button>
+            </div>
+
+            <nav class="mt-4 px-3 flex flex-col gap-2 flex-1 overflow-y-auto no-scrollbar">
+                <a href="Dashboard.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">dashboard</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">لوحة التحكم</span>
+                </a>
+                <a href="index.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">point_of_sale</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الكاشير</span>
+                </a>
+                <a href="Rentals.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">styler</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التأجير</span>
+                </a>
+                                <a href="Alterations.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">content_cut</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التعديلات</span>
+                </a>
+                <a href="Customers.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">group</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">العملاء</span>
+                </a>
+                <a href="Inventory.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">inventory_2</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المخزون</span>
+                </a>
+                <a href="Suppliers.html" class="nav-link flex items-center rounded-xl bg-white/10 text-white font-medium transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">local_shipping</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموردين</span>
+                </a>
+                <a href="Employees.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">badge</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الموظفين</span>
+                </a>
+                <a href="Expenses.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">المصاريف</span>
+                </a>
+                <a href="Reports.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">التقارير</span>
+                </a>
+                <a href="Settings.html" class="nav-link flex items-center rounded-xl text-slate-400 hover:bg-white/5 hover:text-white transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">settings</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">الإعدادات</span>
+                </a>
+            </nav>
+
+            <div class="p-3 mt-auto border-t border-white/10">
+                <button onclick="logout()" class="w-full flex items-center rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all">
+                    <div class="w-14 h-12 flex items-center justify-center shrink-0">
+                        <span class="material-symbols-outlined">logout</span>
+                    </div>
+                    <span class="transition-opacity duration-300 whitespace-nowrap overflow-hidden" :class="(sidebarExpanded || sidebarLocked) ? 'opacity-100' : 'opacity-0'">تسجيل الخروج</span>
+                </button>
+            </div>
+</aside>
+
+        <!-- منطقة المحتوى الرئيسية -->
+        <div class="flex-1 flex flex-col min-w-0" x-data="supplierApp()" x-init="initData()">
+            <!-- الهيدر (Header) -->
+            <header class="h-20 bg-white/70 backdrop-blur-xl border-b border-outline sticky top-0 z-40 px-4 md:px-8 flex items-center justify-between">
+                <div class="flex items-center gap-3 flex-1">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="mobile-menu-btn w-10 h-10 items-center justify-center rounded-xl bg-primary text-white">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <h2 class="text-lg md:text-xl font-extrabold text-primary">إدارة الموردين</h2>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button @click="isEditing = false; resetForm(); showAddModal = true" class="px-5 py-2.5 rounded-xl bg-primary text-white text-sm font-bold hover:bg-slate-800 transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">local_shipping</span> إضافة مورد جديد
+                    </button>
+                    <div id="user-info-display" class="flex items-center gap-3 pr-4 md:border-r border-outline hidden md:flex"></div>
+                </div>
+            </header>
+
+            <!-- المحتوى الرئيسي -->
+            <main class="p-8">
+                <div class="max-w-7xl mx-auto">
+                    <!-- جدول الموردين -->
+                    <div class="bg-white rounded-[2.5rem] border-2 border-slate-300 shadow-premium overflow-hidden">
+                        <div class="p-8 border-b border-outline flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div>
+                                <h3 class="text-lg font-extrabold text-primary">قائمة الموردين النشطين</h3>
+                                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">إدارة شركاء الخدمات والسلع</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <button class="px-4 py-2 bg-slate-100 border border-transparent rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition-all flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">download</span> تحميل التقرير
+                                </button>
+                            </div>
+                        </div>
+                        <table class="w-full text-right border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900">
+                                    <th class="px-8 py-5 text-xs font-extrabold text-slate-200 uppercase tracking-widest">المورد</th>
+                                    <th class="px-8 py-5 text-xs font-extrabold text-slate-200 uppercase tracking-widest">التواصل</th>
+                                    <th class="px-8 py-5 text-xs font-extrabold text-slate-200 uppercase tracking-widest">نوع السلع</th>
+                                    <th class="px-8 py-5 text-xs font-extrabold text-slate-200 uppercase tracking-widest">الحساب</th>
+                                    <th class="px-8 py-5 text-xs font-extrabold text-slate-200 uppercase tracking-widest text-left">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-outline">
+                                <template x-if="suppliers.length === 0">
+                                    <tr>
+                                        <td colspan="4" class="px-8 py-20 text-center text-slate-400">
+                                            <span class="material-symbols-outlined text-4xl mb-2">local_shipping</span>
+                                            <p class="text-xs font-bold uppercase tracking-widest">لا يوجد موردون مسجلون بعد</p>
+                                        </td>
+                                    </tr>
+                                </template>
+                                <template x-for="supplier in suppliers" :key="supplier.id">
+                                    <tr class="hover:bg-slate-50 transition-colors">
+                                        <td class="px-8 py-6">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-12 h-12 rounded-2xl bg-slate-100 text-primary flex items-center justify-center font-bold text-lg shadow-inner" x-text="supplier.name.charAt(0)"></div>
+                                                <div>
+                                                    <p class="text-sm font-extrabold text-primary" x-text="supplier.name"></p>
+                                                    <div class="flex items-center gap-2 mt-1">
+                                                        <span class="w-2 h-2 bg-success rounded-full"></span>
+                                                        <p class="text-xs text-slate-600 font-bold uppercase tracking-widest" x-text="supplier.category"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-6">
+                                            <p class="text-sm font-bold text-primary" x-text="supplier.contact_person || 'مدير المبيعات'"></p>
+                                            <p class="text-xs text-slate-600 font-bold" x-text="supplier.phone"></p>
+                                        </td>
+                                        <td class="px-8 py-6">
+                                            <div class="flex flex-wrap gap-2">
+                                                <span class="px-2 py-1 bg-primary/5 text-primary text-xs font-bold rounded-lg border border-primary/10" x-text="supplier.supply_type"></span>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-6">
+                                            <div class="flex flex-col gap-1">
+                                                <p class="text-xs font-bold text-slate-500">مشتريات: <span class="text-primary" x-text="Number(supplier.total_purchases).toFixed(2) + ' ج.م'"></span></p>
+                                                <p class="text-xs font-bold text-slate-500">مدفوعات: <span class="text-success" x-text="Number(supplier.total_paid).toFixed(2) + ' ج.م'"></span></p>
+                                                <p class="text-sm font-black mt-1" :class="Number(supplier.balance) < 0 ? 'text-accent' : (Number(supplier.balance) > 0 ? 'text-warning' : 'text-primary')">
+                                                    رصيد: <span x-text="Math.abs(Number(supplier.balance)).toFixed(2) + ' ج.م'"></span>
+                                                    <span x-text="Number(supplier.balance) < 0 ? '(لنا)' : (Number(supplier.balance) > 0 ? '(لهم)' : '')" class="text-[10px]"></span>
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-6 text-left flex gap-2 justify-end">
+                                            <button @click="openPaymentModal(supplier)" class="px-4 py-2 bg-success/10 text-success rounded-xl text-xs font-extrabold hover:bg-success hover:text-white transition-all shadow-sm">دفع دفعة</button>
+                                            <button @click="editSupplier(supplier)" class="text-slate-600 hover:text-primary transition-all"><span class="material-symbols-outlined">edit</span></button>
+                                            <button @click="deleteSupplier(supplier.id)" class="text-slate-600 hover:text-accent transition-all"><span class="material-symbols-outlined">delete</span></button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Modal لإضافة مورد -->
+            <div x-show="showAddModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div x-show="showAddModal" @click="showAddModal = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div x-show="showAddModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-[2.5rem] text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full p-10">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-extrabold text-primary" id="modal-title" x-text="isEditing ? 'تعديل بيانات المورد' : 'إضافة مورد جديد'"></h3>
+                            <p class="text-sm text-slate-400 font-medium mt-2">أدخل بيانات المورد ليتم تسجيله في النظام.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">اسم الشركة الموردة</label>
+                                <input x-model="newSupplier.name" type="text" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">الموقع/المدينة</label>
+                                <input x-model="newSupplier.location" type="text" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">نوع السلع</label>
+                                <select x-model="newSupplier.supply_type" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+                                    <option>ملابس جاهزة</option>
+                                    <option>أقمشة</option>
+                                    <option>إكسسوارات</option>
+                                    <option>أحذية</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">رقم الهاتف</label>
+                                <input x-model="newSupplier.phone" type="text" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-right">
+                            </div>
+                        </div>
+                        <div class="mt-10 flex gap-3">
+                            <button @click="addSupplier()" class="flex-1 py-4 bg-primary text-white rounded-2xl text-sm font-extrabold hover:bg-slate-800 transition-all shadow-xl shadow-primary/20">حفظ المورد</button>
+                            <button @click="showAddModal = false" class="px-8 py-4 bg-slate-100 text-slate-400 rounded-2xl text-sm font-extrabold hover:bg-slate-200 transition-all">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal دفع دفعة لمورد -->
+            <div x-show="showPaymentModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div x-show="showPaymentModal" @click="showPaymentModal = false" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                    <div x-show="showPaymentModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" class="inline-block align-bottom bg-white rounded-[2.5rem] text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full p-10">
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-extrabold text-primary">تسجيل دفعة نقدية</h3>
+                            <p class="text-sm text-slate-400 font-medium mt-2">تسجيل مبلغ تم دفعه للمورد <span class="font-bold text-primary" x-text="selectedSupplier?.name"></span></p>
+                            <p class="text-xs text-warning font-bold mt-1">الرصيد الحالي المستحق: <span x-text="selectedSupplier ? Number(selectedSupplier.balance).toFixed(2) + ' ج.م' : '0.00 ج.م'"></span></p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">المبلغ (ج.م)</label>
+                                <input x-model="paymentAmount" type="number" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-success/20 focus:border-success transition-all font-bold text-lg text-primary text-right">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2 pr-2">ملاحظات (اختياري)</label>
+                                <textarea x-model="paymentNotes" rows="1" class="w-full bg-white border-2 border-slate-300 rounded-xl py-3 px-4 text-sm focus:ring-2 focus:ring-success/20 focus:border-success transition-all"></textarea>
+                            </div>
+                        </div>
+                        <div class="mt-10 flex gap-3">
+                            <button @click="submitPayment()" class="flex-1 py-4 bg-success text-white rounded-2xl text-sm font-extrabold hover:bg-green-600 transition-all shadow-xl shadow-success/20">تسجيل الدفعة</button>
+                            <button @click="showPaymentModal = false" class="px-8 py-4 bg-slate-100 text-slate-400 rounded-2xl text-sm font-extrabold hover:bg-slate-200 transition-all">إلغاء</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('supplierApp', () => ({
+                sidebarExpanded: false,
+                sidebarLocked: localStorage.getItem('sidebarLocked') === 'true',
+                mobileMenuOpen: false,
+                showAddModal: false,
+                showPaymentModal: false,
+                isEditing: false,
+                suppliers: [],
+                selectedSupplier: null,
+                paymentAmount: '',
+                paymentNotes: '',
+                newSupplier: {
+                    id: null,
+                    name: '',
+                    location: '',
+                    phone: '',
+                    email: '',
+                    supply_type: 'ملابس جاهزة'
+                },
+                async initData() {
+                    try {
+                        const response = await fetch('/api/suppliers');
+                        this.suppliers = await response.json();
+                    } catch (err) {
+                        console.error('Error fetching suppliers:', err);
+                    }
+                },
+                async addSupplier() {
+                    try {
+                        const url = this.isEditing ? `/api/suppliers/${this.newSupplier.id}` : '/api/suppliers';
+                        const method = this.isEditing ? 'PUT' : 'POST';
+                        
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                name: this.newSupplier.name,
+                                category: this.newSupplier.location,
+                                contact_person: 'مدير المبيعات',
+                                phone: this.newSupplier.phone,
+                                supply_type: this.newSupplier.supply_type
+                            })
+                        });
+                        if (response.ok) {
+                            await this.initData();
+                            this.showAddModal = false;
+                            this.resetForm();
+                        }
+                    } catch (err) {
+                        console.error('Error saving supplier:', err);
+                    }
+                },
+                editSupplier(supplier) {
+                    this.isEditing = true;
+                    this.newSupplier = { 
+                        id: supplier.id,
+                        name: supplier.name,
+                        location: supplier.category,
+                        phone: supplier.phone,
+                        supply_type: supplier.supply_type
+                    };
+                    this.showAddModal = true;
+                },
+                async deleteSupplier(id) {
+                    if (!confirm('هل أنت متأكد من حذف هذا المورد؟')) return;
+                    try {
+                        const response = await fetch(`/api/suppliers/${id}`, { method: 'DELETE' });
+                        if (response.ok) await this.initData();
+                    } catch (err) {
+                        console.error('Error deleting supplier:', err);
+                    }
+                },
+                resetForm() {
+                    this.isEditing = false;
+                    this.newSupplier = { id: null, name: '', location: '', phone: '', email: '', supply_type: 'ملابس جاهزة' };
+                },
+                openPaymentModal(supplier) {
+                    this.selectedSupplier = supplier;
+                    this.paymentAmount = '';
+                    this.paymentNotes = '';
+                    this.showPaymentModal = true;
+                },
+                async submitPayment() {
+                    if (!this.paymentAmount || isNaN(this.paymentAmount) || this.paymentAmount <= 0) {
+                        alert('برجاء إدخال مبلغ صحيح');
+                        return;
+                    }
+                    try {
+                        const response = await fetch('/api/suppliers/transactions', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                supplier_id: this.selectedSupplier.id,
+                                transaction_type: 'payment',
+                                amount: this.paymentAmount,
+                                notes: this.paymentNotes
+                            })
+                        });
+                        if (response.ok) {
+                            await this.initData();
+                            this.showPaymentModal = false;
+                            this.selectedSupplier = null;
+                            this.paymentAmount = '';
+                        }
+                    } catch (err) {
+                        console.error('Error submitting payment:', err);
+                    }
+                }
+            }));
+        });
+    </script>
+
+</body>
+</html>
+
+
